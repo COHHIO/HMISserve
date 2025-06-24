@@ -4,17 +4,7 @@
 \alias{data_quality_summary}
 \title{Render Data Quality plots & tables for RminorElevated dq_system_wide}
 \usage{
-data_quality_summary(
-  served_in_date_range,
-  Referrals,
-  Project,
-  dq_past_year,
-  dq_eligibility_detail,
-  dq_overlaps,
-  data_APs,
-  rm_dates,
-  vars
-)
+data_quality_summary(co_clients_served, rm_dates)
 }
 \arguments{
 \item{dq_past_year}{\code{(data.frame)} See \code{data_quality}}
