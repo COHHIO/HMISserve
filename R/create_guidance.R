@@ -2,8 +2,13 @@
 NULL
 
 .onLoad <- function(libname, pkgname) {
-  googlesheets4::gs4_auth(path = "inst/vault/rminor@rminor-333915.iam.gserviceaccount.com.json")
-  id <- "15HsbSGmsscGtUIZnBDSVPaU4Zsotp7Dj79mXpPAu_lw"
+
+  cred_path <- Sys.getenv("GOOGLE_SERVICE_ACCOUNT_PATH")
+  if (cred_path != "") {
+    googlesheets4::gs4_auth(path = cred_path)
+  }
+
+  id <- Sys.getenv("GOOGLE_SHEETS_ID")
   guidance <- purrr::map(rlang::set_names(googlesheets4::sheet_names(id)), ~googlesheets4::read_sheet(id, sheet = .x, col_types = "c"))
   # Handle irrelevant
   all_dq <- stringr::str_subset(ls(envir = .getNamespace("HMISserve"), pattern = "^dq\\_"), "^((?!\\_sp\\_)(?!\\_overlaps)(?!\\_check_eligibility).)*$")
