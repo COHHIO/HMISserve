@@ -30,7 +30,14 @@ dependencies$DataQuality <-
 #' @export
 #'
 #' @examples
-data_quality <- function(check_fns = HMISserve::relevant_dq) {
+data_quality <- function(Client = Client,
+                         Project = Project,
+                         Inventory = Inventory,
+                         HealthAndDV = HealthAndDV,
+                         Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
+                         vars = vars,
+                         rm_dates = rm_dates,
+                         check_fns = HMISserve::relevant_dq) {
   # Providers to Check ------------------------------------------------------
   projects_current_hmis <- projects_current_hmis(Project = Project,
                                                  Inventory = Inventory,
