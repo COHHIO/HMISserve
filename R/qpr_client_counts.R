@@ -26,6 +26,10 @@ client_counts <- function(Project,
 
   path_referrals <- qpr_path_to_rrhpsh(Enrollment_extra_Client_Exit_HH_CL_AaE, Referrals)
 
+  HMISdata::upload_hmis_data(project_small,
+                             file_name = "project_small.parquet", format = "parquet")
+  HMISdata::upload_hmis_data(enrollment_small,
+                             file_name = "enrollment_small.parquet", format = "parquet")
   HMISdata::upload_hmis_data(path_referrals,
                              file_name = "path_referrals.parquet", format = "parquet")
   HMISdata::upload_hmis_data(mental_health_unsheltered,
