@@ -19,7 +19,8 @@ qpr_ees <- function(
     enrollment_small,
     project_small,
     destinations,
-    IncomeBenefits
+    IncomeBenefits,
+    rm_dates
 ) {
   # TODO To get the Total RRH (Which should be 75% of all ESG funding spent on Services)
   # Rme - QPR - RRH Spending
