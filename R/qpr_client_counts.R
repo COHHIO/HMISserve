@@ -1,3 +1,15 @@
+#' Title
+#'
+#' @param Project
+#' @param Enrollment_extra_Client_Exit_HH_CL_AaE
+#' @param Disabilities
+#' @param Referrals
+#' @param rm_dates
+#'
+#' @return
+#' @export
+#'
+#' @examples
 client_counts <- function(Project,
                           Enrollment_extra_Client_Exit_HH_CL_AaE,
                           Disabilities,

@@ -1,5 +1,18 @@
 # this script uses the HMIS data to populate the QPR.
 
+#' Title
+#'
+#' @param Enrollment_extra_Client_Exit_HH_CL_AaE
+#' @param Services_enroll_extras
+#' @param enrollment_small
+#' @param project_small
+#' @param destinations
+#' @param IncomeBenefits
+#'
+#' @return
+#' @export
+#'
+#' @examples
 qpr_ees <- function(
     Enrollment_extra_Client_Exit_HH_CL_AaE,
     Services_enroll_extras,
