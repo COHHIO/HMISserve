@@ -46,6 +46,12 @@ projects_current_hmis <- function (Project,
     dplyr::distinct(ProjectID, .keep_all = TRUE)
 }
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 make_vars <- function() {
   vars <- list()
   vars$prep <- c(
