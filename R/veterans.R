@@ -1,3 +1,15 @@
+#' Title
+#'
+#' @param Client
+#' @param Enrollment_extra_Client_Exit_HH_CL_AaE
+#' @param Project
+#' @param VeteranCE
+#' @param tay
+#'
+#' @return
+#' @export
+#'
+#' @examples
 vets <- function(Client,
                  Enrollment_extra_Client_Exit_HH_CL_AaE,
                  Project,

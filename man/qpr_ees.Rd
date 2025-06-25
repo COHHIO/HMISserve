@@ -10,7 +10,8 @@ qpr_ees(
   enrollment_small,
   project_small,
   destinations,
-  IncomeBenefits
+  IncomeBenefits,
+  rm_dates
 )
 }
 \arguments{
