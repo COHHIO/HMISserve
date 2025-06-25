@@ -22,6 +22,14 @@ dependencies$DataQuality <-
   )
 
 
+#' Title
+#'
+#' @param check_fns
+#'
+#' @return
+#' @export
+#'
+#' @examples
 data_quality <- function(check_fns = HMISserve::relevant_dq) {
   # Providers to Check ------------------------------------------------------
   projects_current_hmis <- projects_current_hmis(Project = Project,
