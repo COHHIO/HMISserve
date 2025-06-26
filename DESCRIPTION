@@ -19,6 +19,7 @@ Collate:
     'relevant_dq.R'
     'guidance.R'
     'create_guidance.R'
+    'data.R'
     'data_quality.R'
     'data_quality_summary.R'
     'data_quality_utils.R'
