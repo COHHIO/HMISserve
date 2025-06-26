@@ -1,3 +1,9 @@
+#' Data Quality Check Function Names
+#'
+#' A character vector containing the names of all data quality check functions
+#' available in the HMISserve package.
+#'
+#' @format A character vector with 58 elements
 #' @export
 relevant_dq <-
 c("dq_check_disability_ssi", "dq_conflicting_hi_ee", "dq_conflicting_income",
