@@ -33,3 +33,6 @@ Collate:
     'spm.R'
     'veteran_active_list.R'
     'veterans.R'
+Depends: 
+    R (>= 3.5)
+LazyData: true

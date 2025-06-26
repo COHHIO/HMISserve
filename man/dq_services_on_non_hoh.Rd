@@ -16,7 +16,7 @@ dq_services_on_non_hoh(
 \item{Services_enroll_extras}{Custom Services and Enrollment data frame}
 }
 \description{
-
+Users should not checkbox all the Household members when creating a Service Transaction. Only the Head of Household needs a Service Transaction. Delete any extraneous Service Transactions related to this project stay.
 }
 \seealso{
 Other Clarity Checks: 

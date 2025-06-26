@@ -4,7 +4,10 @@
 \alias{load_guidance_data}
 \title{Load guidance data from Google Sheets}
 \usage{
-load_guidance_data()
+load_guidance_data(force = FALSE)
+}
+\arguments{
+\item{force}{Logical. If TRUE, forces a refresh from Google Sheets even if cached data exists}
 }
 \description{
 Load guidance data from Google Sheets

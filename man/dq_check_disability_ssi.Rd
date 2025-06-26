@@ -7,7 +7,7 @@
 dq_check_disability_ssi(served_in_date_range, IncomeBenefits, vars, guidance)
 }
 \description{
-
+If a Client is receiving SSI or SSDI for THEIR OWN disability, that disability should be indicated in the Disabling Conditions data elements. If an adult is receiving SSI or SSDI benefits on behalf a minor child, then there is no action needed.
 }
 \seealso{
 Other Clarity Checks: 

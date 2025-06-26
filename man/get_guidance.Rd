@@ -4,8 +4,16 @@
 \alias{get_guidance}
 \title{Get guidance data}
 \usage{
-get_guidance()
+get_guidance(refresh = FALSE)
+}
+\arguments{
+\item{refresh}{Logical. If TRUE, forces a refresh from Google Sheets}
+}
+\value{
+A named list of guidance instructions
 }
 \description{
-Get guidance data
+Returns a list of instructions tailored to the specific HMIS software
+for each Data Quality Issue. Data is cached and only refreshed when
+explicitly requested.
 }

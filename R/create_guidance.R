@@ -1,10 +1,7 @@
-#' @include guidance.R relevant_dq.R aaa_imports.R
-NULL
+# In create_guidance.R
 
-.onLoad <- function(libname, pkgname) {
-  # Don't authenticate or load data during package installation
-  # This will be handled when functions are actually called
-}
+# Package-level cache
+.guidance_cache <- new.env(parent = emptyenv())
 
 #' Ensure Google Sheets authentication is set up
 #' @keywords internal
@@ -22,10 +19,18 @@ ensure_authenticated <- function() {
 }
 
 #' Load guidance data from Google Sheets
+#' @param force Logical. If TRUE, forces a refresh from Google Sheets even if cached data exists
 #' @keywords internal
-load_guidance_data <- function() {
-  ensure_authenticated()
+load_guidance_data <- function(force = FALSE) {
+  # Check cache first unless forced
+  if (!force && exists("guidance", envir = .guidance_cache) && exists("relevant_dq", envir = .guidance_cache)) {
+    return(list(
+      guidance = get("guidance", envir = .guidance_cache),
+      relevant_dq = get("relevant_dq", envir = .guidance_cache)
+    ))
+  }
 
+  ensure_authenticated()
   id <- Sys.getenv("GOOGLE_SHEETS_ID")
   if (id == "") {
     stop("GOOGLE_SHEETS_ID environment variable not set. Use usethis::edit_r_environ() to set it.")
@@ -39,60 +44,76 @@ load_guidance_data <- function() {
                                 "^((?!\\_sp\\_)(?!\\_overlaps)(?!\\_check_eligibility).)*$")
   irrelevant <- guidance$`Guidance list`$name[(nchar(guidance$`Guidance list`$irrelevant) > 0) %|% FALSE]
   irrelevant <- unique(guidance$Checks$DQ_Check[stringr::str_extract(guidance$Checks$Guidance, "(?<=guidance\\$)[\\w\\_]+") %in% irrelevant])
-  relevant_dq <- setdiff(all_dq, irrelevant)
-
-  # Save relevant_dq
-  dump("relevant_dq", file.path("R","relevant_dq.R"))
+  relevant_dq_vector <- setdiff(all_dq, irrelevant)
 
   # Process guidance
-  guidance <- purrr::map(rlang::set_names(guidance$`Guidance list`$name), ~{
+  processed_guidance <- purrr::map(rlang::set_names(guidance$`Guidance list`$name), ~{
     guidance$`Guidance list`$guidance[guidance$`Guidance list`$name == .x]
   })
 
-  # Save guidance
-  f <- ifelse(clarity.looker::is_dev(), "R/guidance.R",
-              file.path(system.file(package = "RmData"), "R", "guidance.R"))
-  dump("guidance", f)
+  # Cache the results
+  assign("guidance", processed_guidance, envir = .guidance_cache)
+  assign("relevant_dq", relevant_dq_vector, envir = .guidance_cache)
+  assign("last_updated", Sys.time(), envir = .guidance_cache)
 
-  list(guidance = guidance, relevant_dq = relevant_dq)
+  list(guidance = processed_guidance, relevant_dq = relevant_dq_vector)
 }
 
-# Create lazy-loaded versions of your exported objects
-guidance <- NULL
-relevant_dq <- NULL
-
-# You'll need to modify any functions that use these to call load_guidance_data() first
-# For example:
 #' Get guidance data
+#'
+#' Returns a list of instructions tailored to the specific HMIS software
+#' for each Data Quality Issue. Data is cached and only refreshed when
+#' explicitly requested.
+#'
+#' @param refresh Logical. If TRUE, forces a refresh from Google Sheets
+#' @return A named list of guidance instructions
 #' @export
-get_guidance <- function() {
-  if (is.null(guidance)) {
-    data <- load_guidance_data()
-    guidance <<- data$guidance
-    relevant_dq <<- data$relevant_dq
-  }
-  guidance
+get_guidance <- function(refresh = FALSE) {
+  data <- load_guidance_data(force = refresh)
+  data$guidance
 }
 
-#' Get relevant DQ checks
+#' Get relevant DQ check function names
+#'
+#' Returns a character vector containing the names of all relevant data quality
+#' check functions based on current guidance configuration.
+#'
+#' @param refresh Logical. If TRUE, forces a refresh from Google Sheets
+#' @return A character vector with data quality check function names
 #' @export
-get_relevant_dq <- function() {
-  if (is.null(relevant_dq)) {
-    data <- load_guidance_data()
-    guidance <<- data$guidance
-    relevant_dq <<- data$relevant_dq
-  }
-  relevant_dq
+relevant_dq <- function(refresh = FALSE) {
+  data <- load_guidance_data(force = refresh)
+  data$relevant_dq
 }
 
-#' @title guidance
-#' @name guidance
-#' @description A list of instructions tailored to the specific HMIS software for each Data Quality Issue.
+#' Refresh guidance data from Google Sheets
+#'
+#' Forces a refresh of both guidance and relevant DQ data from Google Sheets.
+#' This updates the in-memory cache without requiring package reinstallation.
+#'
+#' @return Invisibly returns the timestamp of the update
 #' @export
-guidance
+refresh_guidance <- function() {
+  load_guidance_data(force = TRUE)
+  cat("Guidance data refreshed at", format(Sys.time()), "\n")
+  invisible(get("last_updated", envir = .guidance_cache))
+}
 
-#' @title Relevant dq
-#' @name relevant_dq
-#' @description A list of the Data Quality Checks that are relevant and should be run in `data_quality`.
+#' Get guidance cache info
+#'
+#' Returns information about the current guidance cache status
+#'
+#' @return A list with cache status information
 #' @export
-relevant_dq
+guidance_cache_info <- function() {
+  if (exists("last_updated", envir = .guidance_cache)) {
+    list(
+      cached = TRUE,
+      last_updated = get("last_updated", envir = .guidance_cache),
+      guidance_items = length(get("guidance", envir = .guidance_cache)),
+      relevant_dq_count = length(get("relevant_dq", envir = .guidance_cache))
+    )
+  } else {
+    list(cached = FALSE)
+  }
+}
