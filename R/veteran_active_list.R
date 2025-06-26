@@ -1,3 +1,14 @@
+#' Title
+#'
+#' @param co_clients_served
+#' @param Project
+#' @param VeteranCE
+#' @param Contacts
+#'
+#' @return
+#' @export
+#'
+#' @examples
 vet_active <- function(
     co_clients_served,
     Project,

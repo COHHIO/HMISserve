@@ -4,16 +4,7 @@
 \alias{data_quality}
 \title{Title}
 \usage{
-data_quality(
-  Client = Client,
-  Project = Project,
-  Inventory = Inventory,
-  HealthAndDV = HealthAndDV,
-  Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
-  vars = vars,
-  rm_dates = rm_dates,
-  check_fns = HMISserve::relevant_dq
-)
+data_quality(.deps)
 }
 \arguments{
 \item{check_fns}{}
