@@ -13,7 +13,8 @@ vet_active <- function(
     co_clients_served,
     Project,
     VeteranCE,
-    Contacts
+    Contacts,
+    Enrollment_extra_Client_Exit_HH_CL_AaE
 ) {
   data_types <-HMISprep::data_types
 
@@ -168,7 +169,7 @@ vet_active <- function(
   non_hoh_vets <- veteran_active_list_enrollments |>
     dplyr::filter(RelationshipToHoH != 1) |>
     dplyr::select(PersonalID, HouseholdID, RelationshipToHoH)
-  browser()
+
   hoh_chronicity <- non_hoh_vets |>
     dplyr::inner_join(vet_ees |>
                         dplyr::filter(RelationshipToHoH == 1 &
