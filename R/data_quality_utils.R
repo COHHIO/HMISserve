@@ -2572,15 +2572,15 @@ dq_referrals_outstanding <- function(served_in_date_range, Referrals, vars) {
                      by = c("PersonalID", "UniqueID")) |>
     dplyr::left_join(Referrals, by = c("PersonalID", "UniqueID")) |>
     dplyr::select(dplyr::all_of(vars$prep),
-                  ReferringProjectID,
-                  ReferralDaysElapsed,
-                  ReferringProjectName,
-                  DaysInQueue,
+                  R_ReferringProjectID,
+                  R_ReferralDaysElapsed,
+                  R_ReferringProjectName,
+                  R_DaysInQueue,
                   EnrollmentID) |>
-    dplyr::filter(ReferralDaysElapsed %|% DaysInQueue > 14) |>
+    dplyr::filter(R_ReferralDaysElapsed %|% R_DaysInQueue > 14) |>
     dplyr::mutate(
-      ProjectName = ReferringProjectName,
-      ProjectID = ReferringProjectID,
+      ProjectName = R_ReferringProjectName,
+      ProjectID = R_ReferringProjectID,
       Issue = "Old Outstanding Referral",
       Type = "Warning",
       Guidance = "Referrals should be closed in about 2 weeks. Please be sure you are following up with any referrals and helping the client to find permanent housing. Once a Referral is made, the receiving agency should be saving the 'Referral Outcome' once it is known. If you have Referrals that are legitimately still open after 2 weeks because there is a lot of follow up going on, no action is needed since the HMIS data is accurate."
@@ -2596,7 +2596,7 @@ dq_referrals_outstanding <- function(served_in_date_range, Referrals, vars) {
 
 dq_referrals_on_hh_members_ssvf <- function(served_in_date_range, Referrals, vars, guidance) {
   SSVF_Referrals <- Referrals |>
-    dplyr::filter(stringr::str_detect(ReferredProjectName, "SSVF")) |>
+    dplyr::filter(stringr::str_detect(R_ReferredProjectName, "SSVF")) |>
     dplyr::mutate(PersonalID = as.character(PersonalID))
   served_in_date_range |>
     dplyr::select(dplyr::all_of(vars$prep),

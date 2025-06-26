@@ -30,14 +30,25 @@ dependencies$DataQuality <-
 #' @export
 #'
 #' @examples
-data_quality <- function(Client = Client,
-                         Project = Project,
-                         Inventory = Inventory,
-                         HealthAndDV = HealthAndDV,
-                         Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
-                         vars = vars,
-                         rm_dates = rm_dates,
-                         check_fns = HMISserve::relevant_dq) {
+data_quality <- function(.deps) {
+  required <- c(
+    "Client", "Project", "Contacts", "Disabilities",
+    "Enrollment_extra_Client_Exit_HH_CL_AaE", "Funder",
+    "guidance", "HealthAndDV", "IncomeBenefits", "Inventory",
+    "living_situation", "mahoning_projects", "rm_dates",
+    "Referrals", "Referrals_full", "Scores", "Services_enroll_extras", "Users",
+    "vars", "living_situation", "guidance", "check_fns"
+  )
+
+  # Check for missing deps
+  missing <- setdiff(required, names(.deps))
+  if (length(missing) > 0) {
+    stop("Missing dependencies: ", paste(missing, collapse = ", "))
+  }
+
+  # Extract objects from .deps into local environment
+  list2env(.deps, envir = environment())
+
   # Providers to Check ------------------------------------------------------
   projects_current_hmis <- projects_current_hmis(Project = Project,
                                                  Inventory = Inventory,
