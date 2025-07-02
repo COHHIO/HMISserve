@@ -37,8 +37,8 @@ Imports:
     utils,
     UU
 Remotes: 
-    COHHIO/clarity.looker
-    COHHIO/HMIS
+    COHHIO/clarity.looker,
+    COHHIO/HMIS,
     COHHIO/HMISdata,
     COHHIO/HMISprep,
     yogat3ch/UU
