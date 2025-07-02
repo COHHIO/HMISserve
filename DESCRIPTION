@@ -37,7 +37,11 @@ Imports:
     utils,
     UU
 Remotes: 
-    COHHIO/HMISdata
+    COHHIO/clarity.looker
+    COHHIO/HMIS
+    COHHIO/HMISdata,
+    COHHIO/HMISprep,
+    yogat3ch/UU
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
