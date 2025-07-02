@@ -4,7 +4,13 @@
 \alias{vet_active}
 \title{Title}
 \usage{
-vet_active(co_clients_served, Project, VeteranCE, Contacts)
+vet_active(
+  co_clients_served,
+  Project,
+  VeteranCE,
+  Contacts,
+  Enrollment_extra_Client_Exit_HH_CL_AaE
+)
 }
 \arguments{
 \item{Contacts}{}
