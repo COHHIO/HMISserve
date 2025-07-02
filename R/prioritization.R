@@ -580,7 +580,10 @@ prioritization <- function(
     dplyr::select(-IncomeInHH) |>
     dplyr::ungroup()
 
-  HMISdata::upload_hmis_data(prioritization, file_name = "prioritization.parquet", format = "parquet")
+  HMISdata::upload_hmis_data(prioritization,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
+                             file_name = "prioritization.parquet", format = "parquet")
 
   return(prioritization)
 }

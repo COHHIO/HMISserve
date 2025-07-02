@@ -158,14 +158,35 @@ data_quality <- function(.deps) {
   dq_aps_no_referrals <- dqu_aps(Project = Project, data_APs = FALSE, Referrals = Referrals_full)
   dq_APs <- dqu_aps(Project = Project, data_APs = FALSE, Referrals = Referrals_full)
 
-  dq_data <- list()
-  dq_data$dq_past_year <- dq_past_year
-  dq_data$dq_overlaps <- dq_overlaps
-  dq_data$dq_providers <- dq_providers
-  dq_data$dq_aps_no_referrals <- dq_aps_no_referrals
-  dq_data$dq_APs <- dq_APs
-  dq_data$dq_eligibility_detail <- dq_eligibility_detail
-  dq_data$dq_for_pe <- dq_for_pe
+  dq_data_files <- list(
+    "dq_past_year" = dq_past_year,
+    "dq_overlaps" = dq_overlaps,
+    "dq_providers" = dq_providers,
+    "dq_aps_no_referrals" = dq_aps_no_referrals,
+    "dq_APs" = dq_APs,
+    "dq_eligibility_detail" = dq_eligibility_detail,
+    "dq_for_pe" = dq_for_pe,
+    "dq_main" = dq_main
+  )
 
-  return(dq_data)
+  # Upload all files
+  upload_results <- purrr::imap_lgl(dq_data_files, ~ {
+    HMISdata::upload_hmis_data(
+      data = .x,
+      file_name = .y,
+      bucket = "shiny-data-cohhio",
+      folder = "RME",
+      format = "parquet"
+    )
+  })
+
+  # Check results
+  if (all(upload_results)) {
+    cli::cli_alert_success("All DQ data files uploaded successfully")
+  } else {
+    failed_files <- names(upload_results)[!upload_results]
+    cli::cli_alert_warning("Failed to upload: {paste(failed_files, collapse = ', ')}")
+  }
+
+  return(dq_data_files)
 }

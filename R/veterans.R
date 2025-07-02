@@ -221,7 +221,13 @@ vets <- function(Client,
         )
     )
 
-  HMISdata::upload_hmis_data(vets_current, file_name = "vets_current.parquet", format = "parquet")
-  HMISdata::upload_hmis_data(current_tay_hohs, file_name = "current_tay_hohs.parquet", format = "parquet")
+  HMISdata::upload_hmis_data(vets_current,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
+                             file_name = "vets_current.parquet", format = "parquet")
+  HMISdata::upload_hmis_data(current_tay_hohs,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
+                             file_name = "current_tay_hohs.parquet", format = "parquet")
 
 }

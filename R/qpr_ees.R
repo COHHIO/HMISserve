@@ -222,20 +222,36 @@ qpr_ees <- function(
     dplyr::select(-RelationshipToHoH)
 
   HMISdata::upload_hmis_data(qpr_benefits,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
                              file_name = "qpr_benefits.parquet", format = "parquet")
   HMISdata::upload_hmis_data(qpr_income,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
                              file_name = "qpr_income.parquet", format = "parquet")
   HMISdata::upload_hmis_data(qpr_leavers,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
                              file_name = "qpr_leavers.parquet", format = "parquet")
   HMISdata::upload_hmis_data(qpr_reentries,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
                              file_name = "qpr_reentries.parquet", format = "parquet")
   HMISdata::upload_hmis_data(qpr_rrh_enterers,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
                              file_name = "qpr_rrh_enterers.parquet", format = "parquet")
   HMISdata::upload_hmis_data(qpr_spdats_county,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
                              file_name = "qpr_spdats_county.parquet", format = "parquet")
   HMISdata::upload_hmis_data(qpr_spdats_project,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
                              file_name = "qpr_spdats_project.parquet", format = "parquet")
   HMISdata::upload_hmis_data(qpr_spending,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
                              file_name = "qpr_spending.parquet", format = "parquet")
 
 
