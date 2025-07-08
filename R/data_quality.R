@@ -155,13 +155,19 @@ data_quality <- function(.deps) {
 
   dq_providers <- rlang::set_names(projects_current_hmis$ProjectID, projects_current_hmis$ProjectName)[order(projects_current_hmis$ProjectName)]
 
+  dq_providers_df <- data.frame(
+    ProjectID = as.character(dq_providers),
+    ProjectName = names(dq_providers),
+    stringsAsFactors = FALSE
+  )
+
   dq_aps_no_referrals <- dqu_aps(Project = Project, data_APs = FALSE, Referrals = Referrals_full)
   dq_APs <- dqu_aps(Project = Project, data_APs = FALSE, Referrals = Referrals_full)
 
   dq_data_files <- list(
     "dq_past_year" = dq_past_year,
     "dq_overlaps" = dq_overlaps,
-    "dq_providers" = dq_providers,
+    "dq_providers_df" = dq_providers_df,
     "dq_aps_no_referrals" = dq_aps_no_referrals,
     "dq_APs" = dq_APs,
     "dq_eligibility_detail" = dq_eligibility_detail,
@@ -187,6 +193,4 @@ data_quality <- function(.deps) {
     failed_files <- names(upload_results)[!upload_results]
     cli::cli_alert_warning("Failed to upload: {paste(failed_files, collapse = ', ')}")
   }
-
-  return(dq_data_files)
 }
