@@ -15,9 +15,8 @@
 #' @examples
 qpr_ees <- function(
     Enrollment_extra_Client_Exit_HH_CL_AaE,
+    Project,
     Services_enroll_extras,
-    enrollment_small,
-    project_small,
     destinations,
     IncomeBenefits,
     rm_dates
@@ -38,6 +37,9 @@ qpr_ees <- function(
     dplyr::mutate(ProjectType = as.numeric(ProjectType)) |>
     dplyr::filter(!is.na(Goal))
 
+  project_small <- qpr_project_small(Project, rm_dates)
+
+  enrollment_small <- qpr_enrollment_small(Enrollment_extra_Client_Exit_HH_CL_AaE)
 
   # Building qpr_leavers ----------------------------------------------------
 
