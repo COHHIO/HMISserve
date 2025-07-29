@@ -6,9 +6,8 @@
 \usage{
 qpr_ees(
   Enrollment_extra_Client_Exit_HH_CL_AaE,
+  Project,
   Services_enroll_extras,
-  enrollment_small,
-  project_small,
   destinations,
   IncomeBenefits,
   rm_dates
