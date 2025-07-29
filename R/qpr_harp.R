@@ -2,6 +2,18 @@
 # clients served in a county during the reporting period to the avg
 # SPDAt score of those who enrolled into a PSH or RRH project during the
 # reporting period.
+#' Title
+#'
+#' @param Enrollment_extra_Client_Exit_HH_CL_AaE
+#' @param Project
+#' @param Regions
+#' @param Scores
+#' @param data_types
+#'
+#' @return
+#' @export
+#'
+#' @examples
 qpr_spdats <- function(Enrollment_extra_Client_Exit_HH_CL_AaE,
                        Project,
                        Regions,
