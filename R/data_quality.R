@@ -162,7 +162,8 @@ data_quality <- function(.deps) {
   )
 
   dq_aps_no_referrals <- dqu_aps(Project = Project, data_APs = FALSE, Referrals = Referrals_full)
-  dq_APs <- dqu_aps(Project = Project, data_APs = FALSE, Referrals = Referrals_full)
+
+  dq_APs <- dqu_aps(Project = Project, data_APs = TRUE, Referrals = Referrals_full)
 
   dq_data_files <- list(
     "dq_past_year" = dq_past_year,
@@ -193,4 +194,6 @@ data_quality <- function(.deps) {
     failed_files <- names(upload_results)[!upload_results]
     cli::cli_alert_warning("Failed to upload: {paste(failed_files, collapse = ', ')}")
   }
+
+  return(dq_data_files)
 }

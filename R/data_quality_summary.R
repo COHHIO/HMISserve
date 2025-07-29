@@ -11,8 +11,9 @@
 #' @include 04_DataQuality.R 04_DataQuality_utils.R 04_DataQuality_summary_utils.R
 
 data_quality_summary <- function(co_clients_served,
-                                 rm_dates) {
-  dq_data <- data_quality()
+                                 rm_dates,
+                                 .deps) {
+  dq_data <- data_quality(.deps = deps)
   dq_past_year <- dq_data$dq_past_year
   dq_eligibility_detail <- dq_data$dq_eligibility_detail
   dq_overlaps <- dq_data$dq_overlaps
@@ -60,6 +61,11 @@ data_quality_summary <- function(co_clients_served,
 
   dq_summary$incorrect_destination <- dqu_summary(dq_past_year, filter_exp = stringr::str_detect(Issue, "Incorrect.*Destination"), join = client_summary)
   dq_summary$psh_destination <- dqu_summary(dq_past_year, filter_exp = stringr::str_detect(Issue, "(?:Destination|Missing).*(?:PSH)"), join = client_summary)
+
+  HMISdata::upload_hmis_data(dq_summary,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
+                             file_name = "dq_summary.rds", format = "rds")
 
   return(dq_summary)
 }
