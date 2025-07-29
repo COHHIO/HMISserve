@@ -243,14 +243,6 @@ qpr_ees <- function(
                              bucket = "shiny-data-cohhio",
                              folder = "RME",
                              file_name = "qpr_rrh_enterers.parquet", format = "parquet")
-  HMISdata::upload_hmis_data(qpr_spdats_county,
-                             bucket = "shiny-data-cohhio",
-                             folder = "RME",
-                             file_name = "qpr_spdats_county.parquet", format = "parquet")
-  HMISdata::upload_hmis_data(qpr_spdats_project,
-                             bucket = "shiny-data-cohhio",
-                             folder = "RME",
-                             file_name = "qpr_spdats_project.parquet", format = "parquet")
   HMISdata::upload_hmis_data(qpr_spending,
                              bucket = "shiny-data-cohhio",
                              folder = "RME",
