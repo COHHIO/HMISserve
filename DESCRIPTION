@@ -64,6 +64,7 @@ Collate:
     'project_evaluation_utils.R'
     'qpr_client_counts.R'
     'qpr_ees.R'
+    'qpr_harp.R'
     'qpr_utils.R'
     'spm.R'
     'veteran_active_list.R'
