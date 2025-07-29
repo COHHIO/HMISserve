@@ -348,8 +348,13 @@ bed_unit_utilization <- function(
                              bucket = "shiny-data-cohhio",
                              folder = "RME",
                              file_name = "utilization_bed.parquet", format = "parquet")
-  HMISdata::upload_hmis_data(utilization_beds,bucket = "shiny-data-cohhio",
+  HMISdata::upload_hmis_data(utilization_beds,
+                             bucket = "shiny-data-cohhio",
                              folder = "RME",
                              file_name = "utilization_beds.parquet", format = "parquet")
+  HMISdata::upload_hmis_data(utilization_clients,
+                             bucket = "shiny-data-cohhio",
+                             folder = "RME",
+                             file_name = "utilization_clients.parquet", format = "parquet")
 }
 
