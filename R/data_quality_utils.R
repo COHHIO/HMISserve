@@ -884,9 +884,9 @@ dq_detail_missing_disabilities <- function(served_in_date_range, Disabilities, v
 #' @export
 
 dq_mahoning_ce_60_days <- function(served_in_date_range, mahoning_projects, vars, guidance = NULL) {
-  mahoning_ce <- mahoning_projects[stringr::str_detect(names(mahoning_projects), "Coordinated Entry")]
+  mahoning_ce <- mahoning_projects |> dplyr::filter(ProjectTypeCode == "Coordinated Entry")
   served_in_date_range |>
-    dplyr::filter(ProjectID %in% mahoning_ce &
+    dplyr::filter(ProjectID %in% mahoning_ce$ProjectID &
                     EntryDate <= lubridate::today() - lubridate::days(60) &
                     is.na(ExitDate)) |>
     dplyr::mutate(
@@ -907,14 +907,14 @@ dq_th_stayers_bos <- function(served_in_date_range, mahoning_projects, vars, gui
     dplyr::mutate(Days = as.numeric(difftime(lubridate::today(), EntryDate))) |>
     dplyr::filter(is.na(ExitDate) &
                     ProjectType == 2 &
-                    !ProjectID %in% c(mahoning_projects))
+                    !ProjectID %in% c(mahoning_projects$ProjectID))
 
   th_stayers_mah <- served_in_date_range |>
     dplyr::select(dplyr::all_of(vars$prep), ProjectID) |>
     dplyr::mutate(Days = as.numeric(difftime(lubridate::today(), EntryDate))) |>
     dplyr::filter(is.na(ExitDate) &
                     ProjectType == 2 &
-                    ProjectID %in% c(mahoning_projects))
+                    ProjectID %in% c(mahoning_projects$ProjectID))
 
   Top2_TH_bos <- subset(th_stayers_bos, Days > stats::quantile(Days, prob = 1 - 2 / 100))
   Top2_TH_mah <- subset(th_stayers_mah, Days > stats::quantile(Days, prob = 1 - 2 / 100))
@@ -923,14 +923,14 @@ dq_th_stayers_bos <- function(served_in_date_range, mahoning_projects, vars, gui
     dplyr::select(dplyr::all_of(vars$prep), ProjectID) |>
     dplyr::filter(is.na(ExitDate) &
                     ProjectType == 13 &
-                    !ProjectID %in% c(mahoning_projects)) |>
+                    !ProjectID %in% c(mahoning_projects$ProjectID)) |>
     dplyr::mutate(Days = as.numeric(difftime(lubridate::today(), EntryDate)))
 
   rrh_stayers_mah <- served_in_date_range |>
     dplyr::select(dplyr::all_of(vars$prep), ProjectID) |>
     dplyr::filter(is.na(ExitDate) &
                     ProjectType == 13 &
-                    ProjectID %in% c(mahoning_projects)) |>
+                    ProjectID %in% c(mahoning_projects$ProjectID)) |>
     dplyr::mutate(Days = as.numeric(difftime(lubridate::today(), EntryDate)))
 
   Top2_RRH_bos <- subset(rrh_stayers_bos, Days > stats::quantile(Days, prob = 1 - 2 / 100))
@@ -940,14 +940,14 @@ dq_th_stayers_bos <- function(served_in_date_range, mahoning_projects, vars, gui
     dplyr::select(dplyr::all_of(vars$prep), ProjectID) |>
     dplyr::filter(is.na(ExitDate) &
                     ProjectType %in% c(0,1) &
-                    !ProjectID %in% c(mahoning_projects)) |>
+                    !ProjectID %in% c(mahoning_projects$ProjectID)) |>
     dplyr::mutate(Days = as.numeric(difftime(lubridate::today(), EntryDate)))
 
   es_stayers_mah <- served_in_date_range |>
     dplyr::select(dplyr::all_of(vars$prep), ProjectID) |>
     dplyr::filter(is.na(ExitDate) &
                     ProjectType %in% c(0, 1) &
-                    ProjectID %in% c(mahoning_projects)) |>
+                    ProjectID %in% c(mahoning_projects$ProjectID)) |>
     dplyr::mutate(Days = as.numeric(difftime(lubridate::today(), EntryDate)))
 
   Top2_ES_bos <- subset(es_stayers_bos, Days > stats::quantile(Days, prob = 1 - 2 / 100))
@@ -957,14 +957,14 @@ dq_th_stayers_bos <- function(served_in_date_range, mahoning_projects, vars, gui
     dplyr::select(dplyr::all_of(vars$prep), ProjectID) |>
     dplyr::filter(is.na(ExitDate) &
                     ProjectType == 3 &
-                    !ProjectID %in% c(mahoning_projects)) |>
+                    !ProjectID %in% c(mahoning_projects$ProjectID)) |>
     dplyr::mutate(Days = as.numeric(difftime(lubridate::today(), EntryDate)))
 
   psh_stayers_mah <- served_in_date_range |>
     dplyr::select(dplyr::all_of(vars$prep), ProjectID) |>
     dplyr::filter(is.na(ExitDate) &
                     ProjectType == 3 &
-                    ProjectID %in% c(mahoning_projects)) |>
+                    ProjectID %in% c(mahoning_projects$ProjectID)) |>
     dplyr::mutate(Days = as.numeric(difftime(lubridate::today(), EntryDate)))
 
   Top1_PSH_bos <- subset(psh_stayers_bos, Days > stats::quantile(Days, prob = 1 - 1 / 100))
@@ -974,14 +974,14 @@ dq_th_stayers_bos <- function(served_in_date_range, mahoning_projects, vars, gui
     dplyr::select(dplyr::all_of(vars$prep), ProjectID) |>
     dplyr::filter(is.na(ExitDate) &
                     ProjectType == 12 &
-                    !ProjectID %in% c(mahoning_projects)) |>
+                    !ProjectID %in% c(mahoning_projects$ProjectID)) |>
     dplyr::mutate(Days = as.numeric(difftime(lubridate::today(), EntryDate)))
 
   hp_stayers_mah <- served_in_date_range |>
     dplyr::select(dplyr::all_of(vars$prep), ProjectID) |>
     dplyr::filter(is.na(ExitDate) &
                     ProjectType == 12 &
-                    ProjectID %in% c(mahoning_projects)) |>
+                    ProjectID %in% c(mahoning_projects$ProjectID)) |>
     dplyr::mutate(Days = as.numeric(difftime(lubridate::today(), EntryDate)))
 
   Top5_HP_bos <- subset(hp_stayers_bos, Days > stats::quantile(Days, prob = 1 - 5 / 100))
@@ -1197,7 +1197,7 @@ dq_sh_missing_project_stay <- function(served_in_date_range, vars, guidance = NU
 
 dq_missing_county_served <- function(served_in_date_range, mahoning_projects, vars, guidance = NULL) {
   out <- served_in_date_range |>
-    dplyr::filter(is.na(CountyServed) & !ProjectID %in% c(mahoning_projects)) |>
+    dplyr::filter(is.na(CountyServed) & !ProjectID %in% c(mahoning_projects$ProjectID)) |>
     dplyr::mutate(
       Issue = "Missing County Served",
       Type = "Error",
@@ -1214,7 +1214,7 @@ dq_missing_county_served <- function(served_in_date_range, mahoning_projects, va
 
 dq_missing_county_prior <- function(served_in_date_range, mahoning_projects, vars) {
   out <- served_in_date_range |>
-    dplyr::filter(is.na(CountyPrior) & !ProjectID %in% c(mahoning_projects) &
+    dplyr::filter(is.na(CountyPrior) & !ProjectID %in% c(mahoning_projects$ProjectID) &
                     (AgeAtEntry > 17 |
                        is.na(AgeAtEntry))) |>
     dplyr::mutate(Issue = "Missing County of Prior Residence",
