@@ -1197,7 +1197,11 @@ dq_sh_missing_project_stay <- function(served_in_date_range, vars, guidance = NU
 
 dq_missing_county_served <- function(served_in_date_range, mahoning_projects, vars, guidance = NULL) {
   out <- served_in_date_range |>
-    dplyr::filter(is.na(CountyServed) & !ProjectID %in% c(mahoning_projects$ProjectID)) |>
+    dplyr::filter(is.na(CountyServed)) |>
+    dplyr::filter(
+      !(ProjectID %in% c(mahoning_projects$ProjectID)) |
+        (ProjectID %in% c(mahoning_projects$ProjectID) & ProjectType == 3)
+    ) |>
     dplyr::mutate(
       Issue = "Missing County Served",
       Type = "Error",
@@ -1214,9 +1218,11 @@ dq_missing_county_served <- function(served_in_date_range, mahoning_projects, va
 
 dq_missing_county_prior <- function(served_in_date_range, mahoning_projects, vars) {
   out <- served_in_date_range |>
-    dplyr::filter(is.na(CountyPrior) & !ProjectID %in% c(mahoning_projects$ProjectID) &
-                    (AgeAtEntry > 17 |
-                       is.na(AgeAtEntry))) |>
+    dplyr::filter(is.na(CountyPrior) & (AgeAtEntry > 17 | is.na(AgeAtEntry))) |>
+    dplyr::filter(
+      !(ProjectID %in% c(mahoning_projects$ProjectID)) |
+        (ProjectID %in% c(mahoning_projects$ProjectID) & ProjectType == 3)
+    ) |>
     dplyr::mutate(Issue = "Missing County of Prior Residence",
                   Type = "Error",
                   Guidance = guidance$missing_at_entry) |>
