@@ -32,23 +32,43 @@ prioritization <- function(
     dplyr::ungroup() |>
     dplyr::select(PersonalID, HouseholdSize, EnrollmentID)
 
+  CurrentLivingSituation = HMISdata::load_hmis_csv("CurrentLivingSituation.csv",
+                                                   col_types = HMISdata::hmis_csv_specs$CurrentLivingSituation)
+
+  recent_living_situations <- CurrentLivingSituation |>
+    dplyr::group_by(EnrollmentID) |>
+    dplyr::slice_max(DateUpdated, n = 1, with_ties = FALSE) |>  # or use your recent_valid function
+    dplyr::ungroup() |>
+    dplyr::select(EnrollmentID, CurrentLivingSituation, DateUpdatedCLS = DateUpdated)
+
   # get Services Only & Coordinated Entry clients with the most recent LivingSituation as homeless as per email guidance on 2021-12-16T17:58:50-04:00 title: FW: HMIS Data Analyst has invited you to access an application on shinyapps.io
   PID_homeless <- Enrollment_extra_Client_Exit_HH_CL_AaE |>
-    dplyr::filter(ProjectType %in% unlist(data_types$Project$ProjectType[c("so", "ce")]) & PersonalID %in% unique(co_currently_homeless$PersonalID) & LivingSituation %in% data_types$CurrentLivingSituation$CurrentLivingSituation$homeless) |>
+    dplyr::left_join(recent_living_situations, by = "EnrollmentID") |>
+    # if the most recent current living situation is most recently updated, get that, not get the living situation from enrollment
+    # if NA then get CLS, then get LivingSituation
+    dplyr::mutate(RecentLivingSituation = dplyr::coalesce(
+      dplyr::if_else(DateUpdatedCLS > DateUpdated, CurrentLivingSituation, LivingSituation),
+      CurrentLivingSituation,
+      LivingSituation
+    )) |>
+    dplyr::filter(ProjectType %in% c(unlist(data_types$Project$ProjectType[c("so", "ce")]), "street outreach" = 4) &
+                    PersonalID %in% unique(co_currently_homeless$PersonalID) &
+                    RecentLivingSituation %in% data_types$CurrentLivingSituation$CurrentLivingSituation$homeless) |>
     dplyr::group_by(PersonalID) |>
-    dplyr::summarize(LivingSituation = recent_valid(DateUpdated, LivingSituation), .groups = "drop") |>
+    dplyr::summarize(RecentLivingSituation = recent_valid(DateUpdated, RecentLivingSituation), .groups = "drop") |>
     dplyr::pull(PersonalID)
 
   # create a ranking of most secure to least secure project type
-  importance_ranking <- data.frame(ProjectType = c(3, 10, 9, 13, 7, 2, 0, 1, 8, 11, 14, 4))
+  importance_ranking <- data.frame(ProjectType = c(3, 10, 9, 13, 7, 2, 0, 1, 8, 11, 14, 4, 6))
 
   # clients currently entered into a homeless project in our system
   co_currently_homeless <- co_currently_homeless |>
     dplyr::filter(
-      ProjectType %in% c(4, data_types$Project$ProjectType$lh, data_types$Project$ProjectType$ph)
+      ProjectType %in% c(data_types$Project$ProjectType$lh, data_types$Project$ProjectType$ph)
       | PersonalID %in% PID_homeless
     ) |>
     dplyr::filter(ProjectType != 12) |>
+    dplyr::filter(!(ProjectType == 4 & grepl("YHDP", ProjectName, ignore.case = TRUE))) |>
     dplyr::select(
       PersonalID,
       UniqueID,
