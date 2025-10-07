@@ -119,7 +119,6 @@ data_quality <- function(.deps) {
                           "Rent Payment Made, No Move-In Date",
                           "Invalid SSN",
                           "Don't Know/Prefers Not to Answer SSN",
-                          "Missing Gender",
                           "Missing SSN",
                           "Missing Race and Ethnicity",
                           "Missing Relationship to Head of Household",
