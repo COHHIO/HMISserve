@@ -4,7 +4,7 @@
 \alias{relevant_dq}
 \title{Data Quality Check Function Names}
 \format{
-A character vector with 58 elements
+A character vector with 60 elements
 }
 \usage{
 relevant_dq(refresh = FALSE)

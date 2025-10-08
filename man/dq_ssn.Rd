@@ -27,7 +27,6 @@ Other Clarity Checks:
 \code{\link{dq_duplicate_ees}()},
 \code{\link{dq_future_ees}()},
 \code{\link{dq_future_exits}()},
-\code{\link{dq_gender}()},
 \code{\link{dq_hh_active_client_no_hoh}()},
 \code{\link{dq_hh_children_only}()},
 \code{\link{dq_hh_missing_rel_to_hoh}()},
@@ -78,7 +77,6 @@ Other Clarity Checks:
 
 Other DQ: Missing UDEs: 
 \code{\link{dq_dob}()},
-\code{\link{dq_gender}()},
 \code{\link{dq_name}()},
 \code{\link{dq_race}()},
 \code{\link{dq_veteran}()}

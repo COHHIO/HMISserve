@@ -348,34 +348,6 @@ dq_race <- function(served_in_date_range,
 }
 
 
-#' @title Data quality report on Gender Data
-#' @family Clarity Checks
-#' @family DQ: Missing UDEs
-
-#' @inherit data_quality_tables params return
-
-dq_gender <- function(served_in_date_range,
-                      guidance = NULL,
-                      vars = NULL) {
-  served_in_date_range |>
-    dplyr::mutate(
-      Issue = dplyr::case_when(
-        GenderNone == 99 ~ "Missing Gender",
-        GenderNone %in% c(8, 9) ~ "Don't Know/Prefers Not to Answer Gender"
-      ),
-      Type = dplyr::case_when(
-        GenderNone == 99 ~ "Error",
-        GenderNone %in% c(8, 9) ~ "Warning"
-      ),
-      Guidance = dplyr::if_else(Type == "Warning",
-                                guidance$dkr_data,
-                                guidance$missing_at_entry)
-    ) |>
-    dplyr::filter(!is.na(Issue)) |>
-    dplyr::select(dplyr::all_of(vars$we_want))
-}
-
-
 # Household Issues --------------------------------------------------------
 #' @title Find Households without adults
 #' @inherit data_quality_tables params return
