@@ -51,11 +51,13 @@ prioritization <- function(
       CurrentLivingSituation,
       LivingSituation
     )) |>
+    dplyr::group_by(PersonalID) |>
+    dplyr::slice_max(DateUpdatedCLS, n = 1, with_ties = FALSE) |>
+    dplyr::ungroup() |>
+    # dplyr::summarize(RecentLivingSituation = recent_valid(DateUpdated, RecentLivingSituation), .groups = "drop") |>
     dplyr::filter(ProjectType %in% c(unlist(data_types$Project$ProjectType[c("so", "ce")]), "street outreach" = 4) &
                     PersonalID %in% unique(co_currently_homeless$PersonalID) &
                     RecentLivingSituation %in% data_types$CurrentLivingSituation$CurrentLivingSituation$homeless) |>
-    dplyr::group_by(PersonalID) |>
-    dplyr::summarize(RecentLivingSituation = recent_valid(DateUpdated, RecentLivingSituation), .groups = "drop") |>
     dplyr::pull(PersonalID)
 
   # create a ranking of most secure to least secure project type
@@ -88,6 +90,7 @@ prioritization <- function(
     dplyr::arrange(match(ProjectType, importance_ranking$ProjectType), .by_group = TRUE) |>
     dplyr::slice(1) |>
     dplyr::ungroup()
+
 
   # Check Whether Each Client Has Income ---------------------------------
 
@@ -599,6 +602,7 @@ prioritization <- function(
     ) |>
     dplyr::select(-IncomeInHH) |>
     dplyr::ungroup()
+
 
   HMISdata::upload_hmis_data(prioritization,
                              bucket = "shiny-data-cohhio",
