@@ -65,7 +65,8 @@ prioritization <- function(
     dplyr::group_by(PersonalID) |>
     dplyr::slice_max(DateUpdatedRLS, n = 1, with_ties = FALSE) |>
     dplyr::ungroup() |>
-    dplyr::filter(RecentLivingSituation %in% data_types$CurrentLivingSituation$CurrentLivingSituation$homeless) |>
+    dplyr::filter(RecentLivingSituation %in% data_types$CurrentLivingSituation$CurrentLivingSituation$homeless &
+                    EnrollmentID %in% unique(co_currently_homeless$EnrollmentID)) |>
     dplyr::pull(PersonalID)
 
   # create a ranking of most secure to least secure project type
