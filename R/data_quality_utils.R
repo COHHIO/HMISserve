@@ -2458,15 +2458,23 @@ dq_check_disability_ssi <- function(served_in_date_range, IncomeBenefits, vars, 
                   AgeAtEntry,
                   DisablingCondition) |>
     dplyr::left_join(IncomeBenefits |>
-                       dplyr::select(EnrollmentID, PersonalID, SSI, SSDI), by = c("EnrollmentID", "PersonalID")) |>
+                       dplyr::select(EnrollmentID,
+                                     PersonalID,
+                                     SSI,
+                                     SSDI,
+                                     VADisabilityService,
+                                     VADisabilityNonService
+                                     ), by = c("EnrollmentID", "PersonalID")) |>
     dplyr::mutate(SSI = dplyr::if_else(is.na(SSI), 0L, SSI),
-                  SSDI = dplyr::if_else(is.na(SSDI), 0L, SSDI)) |>
-    dplyr::filter(SSI + SSDI > 0 &
-                    DisablingCondition == 0 & AgeAtEntry > 17) |>
-    dplyr::select(-DisablingCondition, -SSI, -SSDI, -AgeAtEntry) |>
+                  SSDI = dplyr::if_else(is.na(SSDI), 0L, SSDI),
+                  VADisabilityService = dplyr::if_else(is.na(VADisabilityService), 0L, VADisabilityService),
+                  VADisabilityNonService = dplyr::if_else(is.na(VADisabilityNonService), 0L, VADisabilityNonService)) |>
+    dplyr::filter((SSDI + VADisabilityService + VADisabilityNonService > 0 & DisablingCondition != 1 & AgeAtEntry > 17) |
+                    SSI > 0 & DisablingCondition != 1 & (AgeAtEntry > 17 & AgeAtEntry < 65)) |>
+    dplyr::select(-DisablingCondition, -SSI, -SSDI, -VADisabilityService, -VADisabilityNonService, -AgeAtEntry) |>
     unique() |>
     dplyr::mutate(
-      Issue = "Client with No Disability Receiving SSI/SSDI (could be ok)",
+      Issue = "Client with No Disability Receiving SSI/SSDI/Other Disability Based Income (could be ok)",
       Type = "Warning",
       Guidance = guidance$check_disability_ssi
     ) |>
