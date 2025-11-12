@@ -40,15 +40,16 @@ prioritization <- function(
 
   recent_living_situations <- CurrentLivingSituation |>
     dplyr::group_by(EnrollmentID) |>
-    dplyr::slice_max(DateUpdated, n = 1, with_ties = FALSE) |>  # or use your recent_valid function
+    dplyr::slice_max(InformationDate, n = 1, with_ties = FALSE) |>  # or use your recent_valid function
     dplyr::ungroup() |>
-    dplyr::select(EnrollmentID, CurrentLivingSituation, DateUpdatedCLS = DateUpdated)
+    dplyr::select(EnrollmentID, CurrentLivingSituation, DateUpdatedCLS = InformationDate)
 
   # filtering for SSO, CE, and SO AND if client is in a homeless situation
   # then filtering for most recent living situation and
 
   PID_homeless <- Enrollment_extra_Client_Exit_HH_CL_AaE |>
-    dplyr::filter(ProjectType %in% c(unlist(data_types$Project$ProjectType[c("so", "ce")]), "street outreach" = 4)) |>
+    dplyr::filter(ProjectType %in% c(unlist(data_types$Project$ProjectType[c("so", "ce")]), "street outreach" = 4) &
+                    EnrollmentID %in% unique(co_currently_homeless$EnrollmentID)) |>
     dplyr::left_join(recent_living_situations, by = "EnrollmentID") |>
     # if the most recent current living situation is most recently updated, get that, not get the living situation from enrollment
     # if NA then get CLS, then get LivingSituation
@@ -65,8 +66,7 @@ prioritization <- function(
     dplyr::group_by(PersonalID) |>
     dplyr::slice_max(DateUpdatedRLS, n = 1, with_ties = FALSE) |>
     dplyr::ungroup() |>
-    dplyr::filter(RecentLivingSituation %in% data_types$CurrentLivingSituation$CurrentLivingSituation$homeless &
-                    EnrollmentID %in% unique(co_currently_homeless$EnrollmentID)) |>
+    dplyr::filter(RecentLivingSituation %in% data_types$CurrentLivingSituation$CurrentLivingSituation$homeless) |>
     dplyr::pull(PersonalID)
 
   # create a ranking of most secure to least secure project type
@@ -79,7 +79,6 @@ prioritization <- function(
       | PersonalID %in% PID_homeless
     ) |>
     dplyr::filter(ProjectType != 12) |>
-    dplyr::filter(!(ProjectType == 4 & grepl("YHDP", ProjectName, ignore.case = TRUE))) |>
     dplyr::select(
       PersonalID,
       UniqueID,
@@ -612,7 +611,6 @@ prioritization <- function(
     dplyr::select(-IncomeInHH) |>
     dplyr::ungroup()
 
-  browser()
 
   HMISdata::upload_hmis_data(prioritization,
                              bucket = "shiny-data-cohhio",
