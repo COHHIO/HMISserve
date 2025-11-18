@@ -235,8 +235,9 @@ project_evaluation <- function(
   # calculates how many clients have a qualifying error of whatever type. only
   # returns the providers with any qualifying errors.
 
+  dq_for_pe <- HMISdata::load_hmis_parquet("dq_for_pe.parquet", bucket = "shiny-data-cohhio", folder = "RME")
+
   dq_flags_staging <- dq_for_pe %>%
-    dplyr::mutate(ProjectType = as.character(ProjectType)) %>%
     dplyr::right_join(pe_coc_funded, by = c("ProjectType", "ProjectID", "ProjectName")) %>%
     dplyr::mutate(
       GeneralFlag =
@@ -310,7 +311,7 @@ project_evaluation <- function(
   # TODO Automation email drafts to the right set of users (need to filter COHHIO_admin_user_ids)
   # Retrieve AgencyID, get all attached UserIDs, Send email to those Users.
 
-
+  User_extras <- HMISdata::load_looker_data(filename = "User", col_types = HMISdata::look_specs$User)
 
   pe_users_info <- data_quality_flags %>%
     dplyr::filter(GeneralFlagTotal > 0 |
@@ -320,7 +321,7 @@ project_evaluation <- function(
     dplyr::left_join(pe_coc_funded %>%
                        dplyr::distinct(ProjectID, AltProjectID), by = "AltProjectID") %>%
     dplyr::mutate(ProjectID = dplyr::if_else(is.na(ProjectID), AltProjectID, ProjectID)) %>%
-    dplyr::left_join(clarity_api$User_extras() |>
+    dplyr::left_join(User_extras |>
                        dplyr::mutate(ProjectID = as.character(ProjectID)) |>
                        dplyr::filter(!is.na(ProjectID) & Deleted == "No") |>
                        dplyr::select(UserID, ProjectID), by = "ProjectID")

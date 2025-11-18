@@ -45,7 +45,7 @@ peval_filter_select <- function(x,
     dplyr::inner_join(pe_coc_funded, by = "ProjectID") %>%
     dplyr::left_join(
       Enrollment_extra_Client_Exit_HH_CL_AaE %>%
-        # dplyr::mutate(ProjectType = as.character(ProjectType)) |>
+        dplyr::mutate(ProjectType = as.character(ProjectType)) |>
         dplyr::select(- tidyselect::all_of(c("UserID",
                                              "DateCreated",
                                              "DateUpdated",
