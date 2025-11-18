@@ -1,14 +1,21 @@
 
 #' @include 06_Project_Evaluation_utils.R
 project_evaluation <- function(
-    co_clients_served,
-    clarity_api = get_clarity_api(e = rlang::caller_env()),
-    app_env = get_app_env(e = rlang::caller_env())) {
-  force(clarity_api)
-  if (is_app_env(app_env))
-    app_env$set_parent(missing_fmls())
+  co_clients_served,
+  rm_dates,
+  Project,
+  Funder,
+  Enrollment_extra_Client_Exit_HH_CL_AaE
+) {
 
-  # NOTE Dependency needs to be fetched from cloud location
+  co_clients_served <- HMISdata::load_hmis_parquet("co_clients_served.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_adults_served <- HMISdata::load_hmis_parquet("co_adults_served.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_hohs_served <- HMISdata::load_hmis_parquet("co_hohs_served.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_hohs_entered <- HMISdata::load_hmis_parquet("co_hohs_entered.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_clients_moved_in_leavers <- HMISdata::load_hmis_parquet("co_clients_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_hohs_moved_in_leavers <- HMISdata::load_hmis_parquet("co_hohs_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_adults_moved_in_leavers <- HMISdata::load_hmis_parquet("co_adults_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
+
   # read scoring rubric from google sheets
   googlesheets4::gs4_auth(path = "inst/vault/rminor@rminor-333915.iam.gserviceaccount.com.json")
   scoring_rubric <- googlesheets4::read_sheet("1lLsNI8A2E-dDE8O2EHmCP9stSImxZkYJTGx-Oxs1W74",
@@ -17,9 +24,6 @@ project_evaluation <- function(
                                                             "points" = "n") |> paste0(collapse = "")) |>
     dplyr::mutate(AltProjectType = as.character(AltProjectType))
 
-  # scoring_rubric <- clarity.looker::hud_load("scoring_rubric", dirs$public) |>
-  # Staging
-  # COMBAK These will likely need updating in the future
   merged_projects <- setNames(
     list(
       list(c("GLCAP", "Homenet", "PSH")),
@@ -78,7 +82,7 @@ project_evaluation <- function(
                   ProjectID,
                   AltProjectName,
                   AltProjectID)
-  app_env$gather_deps(pe_coc_funded)
+
   vars <- list()
   vars$prep <- c(
     "PersonalID",
