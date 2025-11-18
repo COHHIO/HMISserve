@@ -14,6 +14,7 @@ merge_projects <- function(x, to_merge) {
 
 peval_filter_select <- function(x,
                                 vars,
+                                Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
                                 ...,
                                 stayed = FALSE,
                                 served = FALSE,
@@ -23,13 +24,11 @@ peval_filter_select <- function(x,
                                 distinct = TRUE,
                                 rm_dates,
                                 start = rm_dates$hc$project_eval_start,
-                                end = rm_dates$hc$project_eval_end,
-                                app_env = get_app_env(e = rlang::caller_env())
+                                end = rm_dates$hc$project_eval_end
 ) {
 
   addtl_filters <- rlang::enexprs(...)
-  if (is_app_env(app_env))
-    app_env$set_parent(missing_fmls())
+
   out <- x
 
   if (served)

@@ -153,7 +153,9 @@ project_evaluation <- function(
 
   # Adults who entered during date range
 
-  pe$AdultsEntered <- peval_filter_select(co_adults_served, vars = vars$prep, distinct = FALSE) |>
+  pe$AdultsEntered <- peval_filter_select(co_adults_served, 
+    Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
+    vars = vars$prep, distinct = FALSE) |>
     dplyr::group_by(HouseholdID) %>%
     dplyr::mutate(HHEntryDate = min(EntryDate)) %>%
     dplyr::ungroup() |>
@@ -166,30 +168,43 @@ project_evaluation <- function(
 
   ## for vispdat measure
 
-  pe$HoHsEntered <- peval_filter_select(co_hohs_entered, vars = vars$prep, entered = TRUE, distinct = FALSE)
+  pe$HoHsEntered <- peval_filter_select(co_hohs_entered, 
+    Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
+    rm_dates = rm_dates,
+    vars = vars$prep, entered = TRUE, distinct = FALSE)
 
   # for ncb logic
   # Adults who moved in and exited during date range
 
-  pe$AdultsMovedInLeavers <- peval_filter_select(co_adults_moved_in_leavers, vars = vars$prep, stayed = TRUE, exited = TRUE)
+  pe$AdultsMovedInLeavers <- peval_filter_select(co_adults_moved_in_leavers,
+    Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE, 
+    rm_dates = rm_dates, vars = vars$prep, stayed = TRUE, exited = TRUE)
 
 
   # health insurance
   # Clients who moved in and exited during date range
 
-  pe$ClientsMovedInLeavers <- peval_filter_select(co_clients_moved_in_leavers, vars = vars$prep, stayed = TRUE, exited = TRUE)
+  pe$ClientsMovedInLeavers <- peval_filter_select(co_clients_moved_in_leavers,
+    Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
+    rm_dates = rm_dates, vars = vars$prep, stayed = TRUE, exited = TRUE)
 
   # exits to PH, but needs an added filter of only mover-inners
   # Heads of Household who were served during date range
 
-  pe$HoHsServed <- peval_filter_select(co_hohs_served, vars = vars$prep, served = TRUE)
+  pe$HoHsServed <- peval_filter_select(co_hohs_served, 
+    Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
+    rm_dates = rm_dates, vars = vars$prep, served = TRUE)
 
-  pe$HoHsServedLeavers <- peval_filter_select(co_hohs_served, vars = vars$prep, served = TRUE, exited = TRUE)
+  pe$HoHsServedLeavers <- peval_filter_select(co_hohs_served, 
+    Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
+    rm_dates = rm_dates, vars = vars$prep, served = TRUE, exited = TRUE)
 
   # own housing and LoS
   # Heads of Household who moved in and exited during date range
 
-  pe$HoHsMovedInLeavers <- peval_filter_select(co_hohs_moved_in_leavers, vars = vars$prep, stayed = TRUE, exited = TRUE)
+  pe$HoHsMovedInLeavers <- peval_filter_select(co_hohs_moved_in_leavers, 
+    Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
+    rm_dates = rm_dates, vars = vars$prep, stayed = TRUE, exited = TRUE)
 
 
   # Create Validation Summary -----------------------------------------------
