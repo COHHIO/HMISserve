@@ -1,12 +1,8 @@
 
 #' @include 06_Project_Evaluation_utils.R
 project_evaluation_mahoning <- function(
-    co_clients_served,
-    clarity_api = get_clarity_api(e = rlang::caller_env()),
-    app_env = get_app_env(e = rlang::caller_env())) {
-  force(clarity_api)
-  if (is_app_env(app_env))
-    app_env$set_parent(missing_fmls())
+    co_clients_served) {
+
 
   # NOTE Dependency needs to be fetched from cloud location
   # read scoring rubric from google sheets
@@ -70,7 +66,6 @@ project_evaluation_mahoning <- function(
                     ))
 
 
-  app_env$gather_deps(pe_coc_funded)
   vars <- list()
   vars$prep <- c(
     "PersonalID",
@@ -207,9 +202,6 @@ project_evaluation_mahoning <- function(
 
   # calculates how many clients have a qualifying error of whatever type. only
   # returns the providers with any qualifying errors.
-  dq_for_pe <- dq_for_pe |> dplyr::mutate(ProjectType = as.numeric(ProjectType))
-
-
   dq_flags_staging <- dq_for_pe %>%
     dplyr::right_join(pe_coc_funded, by = c("ProjectType", "ProjectID", "ProjectName")) %>%
     dplyr::mutate(
@@ -293,7 +285,7 @@ project_evaluation_mahoning <- function(
     dplyr::left_join(pe_coc_funded %>%
                        dplyr::distinct(ProjectID, AltProjectID), by = "AltProjectID") %>%
     dplyr::mutate(AltProjectID = dplyr::if_else(is.na(ProjectID), AltProjectID, ProjectID)) %>%
-    dplyr::left_join(clarity_api$User_extras() |>
+    dplyr::left_join(User_extras |>
                        dplyr::mutate(ProjectID = as.character(ProjectID)) |>
                        dplyr::filter(!is.na(ProjectID) & Deleted == "No") |>
                        dplyr::select(UserID, ProjectID), by = "ProjectID")
@@ -1407,7 +1399,7 @@ project_evaluation_mahoning <- function(
   # adding in Organization Name for publishing the final ranking
   # Org Names for the combined projects have to be done manually
 
-  Organization <- clarity_api$Organization()
+  Organization <- Organization # get Organization?
   project_and_alt_project <- pe_coc_funded %>%
     dplyr::left_join(Project[c("ProjectID", "OrganizationID")], by = "ProjectID") %>%
     dplyr::left_join(Organization[c("OrganizationID", "OrganizationName")],
@@ -1450,7 +1442,6 @@ project_evaluation_mahoning <- function(
 
   # saving old data to "current" image so it all carries to the apps
   rlang::exec(app_env$gather_deps, pe_summary_final_scoring_mahoning = pe_summary_final_scoring_mahoning, !!!exported_pe)
-  app_env
 }
 
 

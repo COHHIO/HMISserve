@@ -1476,7 +1476,7 @@ project_evaluation <- function(
   # adding in Organization Name for publishing the final ranking
   # Org Names for the combined projects have to be done manually
 
-  Organization <- clarity_api$Organization()
+  Organization <- Organization # get organization
   project_and_alt_project <- pe_coc_funded %>%
     dplyr::left_join(Project[c("ProjectID", "OrganizationID")], by = "ProjectID") %>%
     dplyr::left_join(Organization[c("OrganizationID", "OrganizationName")],
@@ -1519,5 +1519,4 @@ project_evaluation <- function(
 
   # saving old data to "current" image so it all carries to the apps
   rlang::exec(app_env$gather_deps, pe_summary_final_scoring = pe_summary_final_scoring, !!!exported_pe)
-  app_env
 }
