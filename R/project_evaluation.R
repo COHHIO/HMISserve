@@ -219,7 +219,7 @@ project_evaluation <- function(
 
 
   pe_summary_validation <- rlang::set_names(pe, paste0("summary_", names(pe))) |>
-    purrr::imap(peval_summary, app_env = app_env) |>
+    purrr::imap(peval_summary, pe_coc_funded = pe_coc_funded) |>
     purrr::reduce(dplyr::full_join, by = "AltProjectID") |>
     dplyr::left_join(pe_coc_funded %>%
                        dplyr::select(AltProjectID, ProjectType, AltProjectName) %>%
