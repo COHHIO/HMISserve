@@ -48,7 +48,11 @@ project_evaluation <- function(
 
   merged_projects <- purrr::map(merged_projects, ~{
     reg <- purrr::map(.x, ~UU::regex_op(.x, "&"))
-    idx <- purrr::map_dbl(reg, ~stringr::str_which(Project$ProjectName, .x))
+    idx <- purrr::map(reg, ~{
+      matches <- stringr::str_which(Project$ProjectName, .x)
+      if (length(matches) == 0) integer(0) else matches
+    })
+    idx <- unlist(idx)
 
     list(ProjectName = Project$ProjectName[idx],
          ProjectID = Project$ProjectID[idx])
