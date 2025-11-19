@@ -537,92 +537,10 @@ project_evaluation <- function(
       ExitsToPHCohort
     )
 
-  # # Housing Stability: Moved into Own Housing -------------------------------
-  # # RRH, PSH
-
-  pe$OwnHousing <- pe$HoHsMovedInLeavers %>%
-    dplyr::right_join(pe_coc_funded %>%
-                        dplyr::select(ProjectType, AltProjectID, AltProjectName) %>%
-                        unique(),
-                      by = c("AltProjectName", "ProjectType", "AltProjectID")) %>%
-    dplyr::left_join(data_quality_flags, by = "AltProjectName") %>%
-    dplyr::filter(ProjectType != 2) %>%
-    dplyr::mutate(DaysInProject = difftime(MoveInDateAdjust, EntryDate, units = "days")) %>%
-    dplyr::mutate(
-      MeetsObjective = dplyr::case_when(
-        ((Destination %in% c(3, 410:411, 421) | DestinationSubsidyType %in% c(419:420, 428, 431, 433:434)) &
-           lubridate::ymd(ExitAdjust) <= lubridate::ymd(rm_dates$hc$project_eval_end)) ~ 1,
-        TRUE ~ 0
-      ),
-      OwnHousingDQ = dplyr::case_when(
-        General_DQ == 1 ~ 1,
-        TRUE ~ 0
-      ),
-      DestinationGroup = dplyr::case_when(
-        is.na(Destination) | lubridate::ymd(ExitAdjust) > lubridate::ymd(rm_dates$hc$project_eval_end) ~
-          "Still in Program at Report End Date",
-        Destination %in% c(101, 302, 312, 313, 314, 116, 118, 327) ~ "Temporary", # 1, 2, 12, 13, 14, 16, 18, 27
-        (Destination %in% c(410:411) | DestinationSubsidyType %in% c(419:421, 428, 431, 433:434)) ~ "Household's Own Housing", # 3, 10:11, 19:21, 28, 31, 33:34
-        Destination %in% c(422:423) ~ "Shared Housing", # 22, 23
-        Destination %in% c(204:207, 215, 225, 327, 426, 329) ~ "Institutional",
-        Destination %in% c(8, 9, 17, 30, 99, 37) ~ "Other",
-        Destination == 24 ~ "Deceased"
-      ),
-      PersonalID = as.character(PersonalID)
-    ) %>%
-    dplyr::select(dplyr::all_of(vars$we_want),
-                  OwnHousingDQ, Destination, DestinationSubsidyType, DestinationGroup, DaysInProject)
-
-  summary_pe$OwnHousing <- pe$OwnHousing %>%
-    dplyr::group_by(ProjectType, AltProjectName, OwnHousingDQ) %>%
-    dplyr::summarise(OwnHousing = sum(MeetsObjective),
-                     AverageDays = as.numeric(mean(DaysInProject[OwnHousing > 0], na.rm = TRUE))) %>%
-    dplyr::ungroup() %>%
-    dplyr::right_join(pe_summary_validation, by = c("ProjectType", "AltProjectName")) %>%
-    dplyr::mutate(
-      AverageDaysJoin = dplyr::if_else(is.na(AverageDays), 0, AverageDays)
-    ) %>%
-    dplyr::mutate(AltProjectType = dplyr::if_else(stringr::str_detect(AltProjectName, "Integrated Services - YDHP - RRH"), "113",
-                                                  dplyr::if_else(AltProjectName == "Vinton - Sojourners Care Network - YHDP Crisis TH", "102", ProjectType))
-    ) |>
-    dplyr::right_join(scoring_rubric %>%
-                        dplyr::filter(metric == "own_housing"),
-                      by = "AltProjectType") %>%
-    dplyr::group_by(AltProjectType) %>%
-    dplyr::mutate(OwnHousingPossible = max(points)) %>%
-    dplyr::ungroup() %>%
-    dplyr::filter(dplyr::if_else(goal_type == "min",
-                                 minimum <= AverageDaysJoin &
-                                   maximum > AverageDaysJoin,
-                                 minimum < AverageDaysJoin &
-                                   maximum >= AverageDaysJoin)) %>%
-    dplyr::mutate(
-      OwnHousingMath = dplyr::case_when(
-        HoHsMovedInLeavers == 0 ~ "All points granted because this project had 0 Heads of Household Leavers who Moved into Housing",
-        HoHsMovedInLeavers != 0 & ProjectType != 2 ~ paste(as.integer(AverageDays), "average days"),
-        TRUE ~ ""
-      ),
-      OwnHousingPoints = dplyr::if_else(
-        HoHsMovedInLeavers == 0 & ProjectType != 2, OwnHousingPossible, points
-      ),
-      OwnHousingPoints = dplyr::case_when(OwnHousingDQ == 1 ~ 0,
-                                          is.na(OwnHousingDQ) |
-                                            OwnHousingDQ == 0 ~ OwnHousingPoints),
-      OwnHousingPoints = dplyr::if_else(is.na(OwnHousingPoints), 0, OwnHousingPoints),
-      OwnHousingPossible = dplyr::if_else(ProjectType != 2, 5, NA),
-      OwnHousingCohort = "HoHsMovedInLeavers"
-    ) %>%
-    dplyr::select(ProjectType,
-                  AltProjectName,
-                  OwnHousingCohort,
-                  OwnHousing,
-                  OwnHousingMath,
-                  OwnHousingPoints,
-                  OwnHousingPossible,
-                  OwnHousingDQ)
-
   # Accessing Mainstream Resources: Benefits -----------------------------------
   # PSH, TH, SH, RRH
+
+  IncomeBenefits <- HMISdata::load_hmis_parquet("IncomeBenefits.parquet")
 
   pe$BenefitsAtExit <- pe$AdultsMovedInLeavers %>%
     dplyr::right_join(pe_coc_funded %>%
