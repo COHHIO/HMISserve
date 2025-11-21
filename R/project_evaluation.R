@@ -31,7 +31,6 @@ project_evaluation <- function(
       list(c("Ashland - One Eighty - PSH"), c("Wayne - One Eighty - PSH")),
       list(c("Coalition for Housing - Region 9"), c("Partners of Central Ohio - Region 9"), c("Coshocton - Knohoco Ashland CAC - Region 9 RRH")),
       list(c("Athens - Integrated Services - Charles Place - PSH"), c("Athens - Integrated Services - Graham Drive Family Housing - PSH")),
-      list(c("Hocking MHA - Region 17 Tenant Based - PSH"), c("Hocking MHA  - Hocking Shelter Plus Care - PSH")),
       list(c("Mental Health Recovery Board of Preble County - Prestwick Square - PSH"), c("Mental Health Recovery Board of Preble County - Prestwick Square II - PSH"))
     ),
     c(
@@ -40,7 +39,6 @@ project_evaluation <- function(
       "One Eighty Plus Care - PSH - Combined",
       "Licking Region 9 - RRH - Combined",
       "Athens - Integrated Services - Charles/Graham Combined",
-      "Hocking - Hocking MHA - Region 17 PSH Combined",
       "Preble MHRB \u2013 Prestwick Square PSH \u2013 Combined"
     )
   )
