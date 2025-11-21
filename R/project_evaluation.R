@@ -445,9 +445,94 @@ project_evaluation <- function(
       ExitsToPHDQ,
       ExitsToPHCohort
     )
+  
+  # Measure 2 NEW
+  # % heads of household who returned to homelessness at program exit
+  
+  `%nin%` <- purrr::negate(`%in%`)
 
-  # Accessing Mainstream Resources: Benefits -----------------------------------
+  pe$ReturnToHomelessness <- pe$HoHsServed %>%
+    dplyr::right_join(pe_coc_funded %>%
+                        dplyr::select(ProjectType, AltProjectID, AltProjectName) %>%
+                        unique(),
+                      by = c("AltProjectName", "ProjectType", "AltProjectID")) %>%
+    dplyr::left_join(data_quality_flags, by = "AltProjectName") |>
+    {\(x) {dplyr::filter(x, (HMIS::exited_between(x, rm_dates$hc$project_eval_start, rm_dates$hc$project_eval_end, lgl = TRUE)))}}() |>
+    dplyr::mutate(
+      DestinationGroup = dplyr::case_when(
+        is.na(Destination) | ExitAdjust > rm_dates$hc$project_eval_end ~
+          "Still in Program at Report End Date",
+        Destination %in% c(101, 116, 118) ~ "Homeless",
+        Destination %nin% c(24, 101, 116, 118) ~ "Not Homeless",
+        Destination == 24 ~ "Deceased (not counted)",
+        Destination %in% destinations$other ~ "Other"
+      ),
+      ReturnToHomelessnessDQ = dplyr::case_when(
+        General_DQ == 1 ~ 1,
+        TRUE ~ 0
+      ),
+      MeetsObjective =
+        dplyr::case_when(
+          DestinationGroup == "Not Homeless" ~ 1,
+          TRUE ~ 0
+        )
+    ) |> dplyr::select(dplyr::all_of(vars$we_want), ReturnToHomelessnessDQ, Destination, DestinationGroup)
+
+    summary_pe$ReturnToHomelessness <- pe$ReturnToHomelessness %>%
+      dplyr::group_by(ProjectType, AltProjectName, ReturnToHomelessnessDQ) %>%
+      dplyr::summarise(NotHomeless = sum(MeetsObjective), .groups = "drop") %>%
+      dplyr::right_join(pe_summary_validation, by = c("ProjectType", "AltProjectName")) %>%
+      dplyr::mutate(
+        HoHsServedLeavers = HoHsServedLeavers - HoHDeaths,
+        ReturnToHomelessnessCohort = HoHsServedLeavers,
+        NotHomeless = dplyr::if_else(is.na(NotHomeless), 0, NotHomeless),
+        ReturnToHomelessness = HoHsServedLeavers - NotHomeless,
+        ReturnToHomelessnessPercent = 1 - (NotHomeless / HoHsServedLeavers),
+        ReturnToHomelessnessPercentJoin = dplyr::if_else(is.na(ReturnToHomelessnessPercent), 0, ReturnToHomelessnessPercent)) |>
+        dplyr::cross_join(
+          scoring_rubric %>%
+            dplyr::filter(metric == "return_to_homelessness")
+        ) |> 
+      dplyr::mutate(ReturnToHomelessnessPossible = max(points)) %>%
+      dplyr::filter(dplyr::if_else(goal_type == "min",
+        minimum <= ReturnToHomelessnessPercentJoin &
+        maximum > ReturnToHomelessnessPercentJoin,
+        minimum < ReturnToHomelessnessPercentJoin &
+        maximum >= ReturnToHomelessnessPercentJoin)) %>%
+      dplyr::mutate(ReturnToHomelessnessMath = dplyr::case_when(
+            is.na(HoHsServedLeavers) | HoHsServedLeavers == 0 ~ "No exits during the period.",
+            TRUE ~ paste(
+              HoHsServedLeavers - NotHomeless,
+              "exits to homeless situation /",
+              HoHsServedLeavers,
+              "heads of household =",
+              scales::percent(ReturnToHomelessnessPercent, accuracy = 0.1)
+            )
+      ),
+      ReturnToHomelessnessPoints = dplyr::if_else(HoHsServedLeavers == 0, ReturnToHomelessnessPossible, points),
+      ReturnToHomelessnessPoints = dplyr::if_else(
+        ReturnToHomelessnessDQ == 0 | is.na(ReturnToHomelessnessDQ),
+        ReturnToHomelessnessPoints,
+        0
+      )
+      ) %>%
+      dplyr::select(
+        ProjectType,
+        AltProjectName,
+        ReturnToHomelessness,
+        ReturnToHomelessnessMath,
+        ReturnToHomelessnessPercent,
+        ReturnToHomelessnessPoints,
+        ReturnToHomelessnessPossible,
+        ReturnToHomelessnessDQ,
+        ReturnToHomelessnessCohort
+      )
+  
+  #### Accessing Mainstream Resources: Benefits -----------------------------------
   # PSH, TH, SH, RRH
+
+  # Measure 3
+  # % adult participants who entered the project during the date range who had 1+ source of non-cash benefits or health insurance at exit
 
   IncomeBenefits <- HMISdata::load_hmis_parquet("IncomeBenefits.parquet")
 
