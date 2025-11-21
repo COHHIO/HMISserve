@@ -1362,34 +1362,26 @@ project_evaluation <- function(
     dplyr::arrange(dplyr::desc(TotalScore))
 
 
-  # commenting all this out since we don't want to overwrite these files after
-  # the deadline
-
-  zero_divisors <- pe_summary_validation %>%
-    dplyr::filter(ClientsServed == 0 |
-                    HoHsEntered == 0 |
-                    HoHsServed == 0 |
-                    HoHsServedLeavers == 0 |
-                    # AdultsMovedIn == 0 |
-                    AdultsEntered == 0 |
-                    ClientsMovedInLeavers == 0 |
-                    AdultsMovedInLeavers == 0 |
-                    HoHsMovedInLeavers == 0) %>%
-    dplyr::select(-HoHDeaths)
-
-  # TODO These need to be send somewhere rather than saved
-  readr::write_csv(zero_divisors, fs::path(dirs$random, "zero_divisors.csv"))
-
-  readr::write_csv(final_scores %>%
-                     dplyr::select(OrganizationName,
-                                   AltProjectName,
-                                   TotalScore), fs::path(dirs$random, "pe_final_consolidated_projects.csv"))
-
-  readr::write_csv(pe_final_scores, fs::path(dirs$random, "pe_final_all.csv"))
-
-  exported_pe <- pe[c("ScoredAtPHEntry", "LongTermHomeless", "HomelessHistoryIndex", "IncreaseIncome", "LengthOfStay", "OwnHousing", "ResPrior", "BenefitsAtExit", "ExitsToPH", "EntriesNoIncome")] |>
+  exported_pe <- pe[c("ScoredAtPHEntry", "ReturnToHomelessness", "HomelessHistoryIndex", "IncreaseIncome", 
+  "IncreaseEarnedIncome", "ResPrior", "BenefitsAtExit", "ExitsToPH", "EntriesNoIncome")] |>
     {\(x) {rlang::set_names(x, paste0("pe_", snakecase::to_snake_case(names(x))))}}()
 
-  # saving old data to "current" image so it all carries to the apps
-  rlang::exec(app_env$gather_deps, pe_summary_final_scoring = pe_summary_final_scoring, !!!exported_pe)
+  # Combine everything into one named list
+all_exports <- c(
+  exported_pe,
+  list(pe_summary_final_scoring = pe_summary_final_scoring,
+  pe_summary_validation = pe_summary_validation)
+)
+
+# Upload each one
+purrr::iwalk(all_exports, \(data, name) {
+
+HMISdata::upload_hmis_data(
+    data,
+    bucket = "shiny-data-cohhio",
+    folder = "RME",
+    file_name = paste0(name, ".parquet"),
+    format = "parquet"
+  )
+})
 }
