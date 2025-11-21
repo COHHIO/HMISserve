@@ -1297,20 +1297,18 @@ project_evaluation <- function(
     pe_coc_funded[c("ProjectType", "AltProjectName")] %>%
     unique() %>%
     dplyr::left_join(pe_summary, by = c("ProjectType", "AltProjectName")) |>
-    dplyr::left_join(summary_pe_coc_scoring, by = c("ProjectType", "AltProjectName")) |>
     dplyr::distinct(AltProjectName, .keep_all = TRUE) |>
     dplyr::rowwise() |>
     dplyr::mutate(
       TotalScore = sum(DQPoints,
                        NoIncomeAtEntryPoints,
+                       ReturnToHomelessnessPoints,
                        ExitsToPHPoints,
                        ScoredAtEntryPoints,
                        MedianHHIPoints,
                        IncreasedIncomePoints,
-                       AverageLoSPoints,
-                       LongTermHomelessPoints,
+                       IncreasedEarnedIncomePoints,
                        BenefitsAtExitPoints,
-                       OwnHousingPoints,
                        LHResPriorPoints,
                        na.rm = TRUE
       )
@@ -1319,11 +1317,11 @@ project_evaluation <- function(
 
   pe_final_scores <- pe_summary_final_scoring
 
-  pe_final_scores$HousingFirstScore[is.na(pe_final_scores$HousingFirstScore)] <- 0
-  pe_final_scores$ChronicPrioritizationScore[is.na(pe_final_scores$ChronicPrioritizationScore)] <- 0
-  pe_final_scores$PrioritizationWorkgroupScore[is.na(pe_final_scores$PrioritizationWorkgroupScore)] <- 0
-  pe_final_scores$AverageLoSPoints[is.na(pe_final_scores$AverageLoSPoints)] <- 0
-  pe_final_scores$LongTermHomelessPoints[is.na(pe_final_scores$LongTermHomelessPoints)] <- 0
+  # pe_final_scores$HousingFirstScore[is.na(pe_final_scores$HousingFirstScore)] <- 0
+  # pe_final_scores$ChronicPrioritizationScore[is.na(pe_final_scores$ChronicPrioritizationScore)] <- 0
+  # pe_final_scores$PrioritizationWorkgroupScore[is.na(pe_final_scores$PrioritizationWorkgroupScore)] <- 0
+  # pe_final_scores$AverageLoSPoints[is.na(pe_final_scores$AverageLoSPoints)] <- 0
+  # pe_final_scores$LongTermHomelessPoints[is.na(pe_final_scores$LongTermHomelessPoints)] <- 0
 
   pe_final_scores <- pe_final_scores %>%
     dplyr::mutate(
@@ -1333,14 +1331,13 @@ project_evaluation <- function(
         ScoredAtEntryPoints +
         MedianHHIPoints +
         IncreasedIncomePoints +
-        AverageLoSPoints +
-        LongTermHomelessPoints +
+        IncreasedEarnedIncomePoints +
         BenefitsAtExitPoints +
-        OwnHousingPoints +
         LHResPriorPoints +
-        HousingFirstScore +
-        ChronicPrioritizationScore +
-        PrioritizationWorkgroupScore
+        ReturnToHomelessnessPoints
+        # HousingFirstScore +
+        # ChronicPrioritizationScore +
+        # PrioritizationWorkgroupScore
     ) %>%
     dplyr::select(ProjectType,
                   AltProjectName,
