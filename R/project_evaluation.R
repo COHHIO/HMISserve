@@ -1217,7 +1217,7 @@ project_evaluation <- function(
     dplyr::left_join(data_quality_flags, by = c("AltProjectName")) %>%
     dplyr::left_join(
       dq_for_pe %>%
-        dplyr::filter(Issue == "Non-DV HoHs Entering PH or TH without SPDAT") %>%
+        dplyr::filter(Issue == "Non-DV HoHs Entering PH or TH without HARP or SPDAT") %>%
         dplyr::select("PersonalID", "HouseholdID", "Issue"),
       by = c("PersonalID", "HouseholdID")
     ) %>%
