@@ -1349,7 +1349,7 @@ project_evaluation <- function(
   # adding in Organization Name for publishing the final ranking
   # Org Names for the combined projects have to be done manually
 
-  Organization <- Organization # get organization
+  Organization <- HMISdata::load_hmis_csv("Organization.csv")
   project_and_alt_project <- pe_coc_funded %>%
     dplyr::left_join(Project[c("ProjectID", "OrganizationID")], by = "ProjectID") %>%
     dplyr::left_join(Organization[c("OrganizationID", "OrganizationName")],
