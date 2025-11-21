@@ -14,6 +14,7 @@ merge_projects <- function(x, to_merge) {
 
 peval_filter_select <- function(x,
                                 vars,
+                                Enrollment_extra_Client_Exit_HH_CL_AaE,
                                 ...,
                                 stayed = FALSE,
                                 served = FALSE,
@@ -21,15 +22,12 @@ peval_filter_select <- function(x,
                                 entered = FALSE,
                                 arrange = TRUE,
                                 distinct = TRUE,
-                                rm_dates,
                                 start = rm_dates$hc$project_eval_start,
-                                end = rm_dates$hc$project_eval_end,
-                                app_env = get_app_env(e = rlang::caller_env())
+                                end = rm_dates$hc$project_eval_end
 ) {
 
   addtl_filters <- rlang::enexprs(...)
-  if (is_app_env(app_env))
-    app_env$set_parent(missing_fmls())
+
   out <- x
 
   if (served)
@@ -46,7 +44,7 @@ peval_filter_select <- function(x,
     dplyr::inner_join(pe_coc_funded, by = "ProjectID") %>%
     dplyr::left_join(
       Enrollment_extra_Client_Exit_HH_CL_AaE %>%
-        # dplyr::mutate(ProjectType = as.character(ProjectType)) |>
+        dplyr::mutate(ProjectType = as.character(ProjectType)) |>
         dplyr::select(- tidyselect::all_of(c("UserID",
                                              "DateCreated",
                                              "DateUpdated",
@@ -74,18 +72,18 @@ peval_filter_select <- function(x,
   out
 }
 
-peval_summary <- function(x, nm, app_env = get_app_env(e = rlang::caller_env())) {
-  app_env$merge_deps_to_env("pe_coc_funded")
+peval_summary <- function(x, nm, pe_coc_funded) {
   if (missing(nm))
     nm <- rlang::expr_deparse(rlang::enexpr(x))
+  
   nm <- nm |>
-    stringr::str_extract("(?<=summary\\_)[\\w\\_]+")|>
+    stringr::str_extract("(?<=summary\\_)[\\w\\_]+") |>
     rlang::sym()
-  out <- x
-
-  dplyr::group_by(out, AltProjectID) %>%
+  
+  x |>
+    dplyr::group_by(AltProjectID) |>
     dplyr::summarise(!!nm := dplyr::n(), .groups = "drop") |>
-    dplyr::right_join(unique(pe_coc_funded["AltProjectID"]), by = "AltProjectID") %>%
+    dplyr::right_join(unique(pe_coc_funded["AltProjectID"]), by = "AltProjectID") |>
     tidyr::replace_na(rlang::list2(!!nm := 0L))
 }
 
