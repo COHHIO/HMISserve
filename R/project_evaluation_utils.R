@@ -14,7 +14,7 @@ merge_projects <- function(x, to_merge) {
 
 peval_filter_select <- function(x,
                                 vars,
-                                Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
+                                Enrollment_extra_Client_Exit_HH_CL_AaE,
                                 ...,
                                 stayed = FALSE,
                                 served = FALSE,
@@ -22,7 +22,6 @@ peval_filter_select <- function(x,
                                 entered = FALSE,
                                 arrange = TRUE,
                                 distinct = TRUE,
-                                rm_dates,
                                 start = rm_dates$hc$project_eval_start,
                                 end = rm_dates$hc$project_eval_end
 ) {
