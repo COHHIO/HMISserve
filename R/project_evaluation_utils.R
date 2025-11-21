@@ -72,18 +72,18 @@ peval_filter_select <- function(x,
   out
 }
 
-peval_summary <- function(x, nm, app_env = get_app_env(e = rlang::caller_env())) {
-  app_env$merge_deps_to_env("pe_coc_funded")
+peval_summary <- function(x, nm, pe_coc_funded) {
   if (missing(nm))
     nm <- rlang::expr_deparse(rlang::enexpr(x))
+  
   nm <- nm |>
-    stringr::str_extract("(?<=summary\\_)[\\w\\_]+")|>
+    stringr::str_extract("(?<=summary\\_)[\\w\\_]+") |>
     rlang::sym()
-  out <- x
-
-  dplyr::group_by(out, AltProjectID) %>%
+  
+  x |>
+    dplyr::group_by(AltProjectID) |>
     dplyr::summarise(!!nm := dplyr::n(), .groups = "drop") |>
-    dplyr::right_join(unique(pe_coc_funded["AltProjectID"]), by = "AltProjectID") %>%
+    dplyr::right_join(unique(pe_coc_funded["AltProjectID"]), by = "AltProjectID") |>
     tidyr::replace_na(rlang::list2(!!nm := 0L))
 }
 
