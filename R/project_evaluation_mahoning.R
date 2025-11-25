@@ -1,19 +1,27 @@
 
 #' @include 06_Project_Evaluation_utils.R
 project_evaluation_mahoning <- function(
-    co_clients_served) {
+  Project,
+  Funder,
+  Enrollment_extra_Client_Exit_HH_CL_AaE,
+  rm_dates) {
 
+    co_clients_served <- HMISdata::load_hmis_parquet("co_clients_served.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_adults_served <- HMISdata::load_hmis_parquet("co_adults_served.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_hohs_served <- HMISdata::load_hmis_parquet("co_hohs_served.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_hohs_entered <- HMISdata::load_hmis_parquet("co_hohs_entered.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_clients_moved_in_leavers <- HMISdata::load_hmis_parquet("co_clients_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_hohs_moved_in_leavers <- HMISdata::load_hmis_parquet("co_hohs_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_adults_moved_in_leavers <- HMISdata::load_hmis_parquet("co_adults_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
 
-  # NOTE Dependency needs to be fetched from cloud location
   # read scoring rubric from google sheets
-  # different scoring rubric for Mahoning
+  # different scoring rubric for Mahoning (need to make sure this is still the case)
 
   googlesheets4::gs4_auth(path = "inst/vault/rminor@rminor-333915.iam.gserviceaccount.com.json")
   scoring_rubric <- googlesheets4::read_sheet("1lLsNI8A2E-dDE8O2EHmCP9stSImxZkYJTGx-Oxs1W74",
                                               sheet = "Sheet1",
-                                              col_types = c("metric" = "c", "AltProjectType" = "n", "goal_type" = "c", "minimum" = "n", "maximum" = "n",
-                                                            "points" = "n") |> paste0(collapse = "")) |>
-    dplyr::mutate(ProjectType = AltProjectType)
+                                              col_types = c("metric" = "c", "goal_type" = "c", "minimum" = "n", "maximum" = "n",
+                                                            "points" = "n") |> paste0(collapse = ""))
 
   merged_projects <-
     list(
@@ -24,7 +32,8 @@ project_evaluation_mahoning <- function(
   merged_projects <- purrr::map(merged_projects, ~{
     reg <- purrr::map(.x, ~UU::regex_op(.x, "&"))
     idx <- purrr::map_dbl(reg, ~stringr::str_which(Project$ProjectName, .x))
-
+    idx <- unlist(idx)
+    
     list(ProjectName = Project$ProjectName[idx],
          ProjectID = Project$ProjectID[idx])
   })
