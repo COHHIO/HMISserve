@@ -16,15 +16,24 @@ peval_filter_select <- function(x,
                                 vars,
                                 Enrollment_extra_Client_Exit_HH_CL_AaE,
                                 ...,
+                                pe_coc_funded = NULL,
                                 stayed = FALSE,
                                 served = FALSE,
                                 exited = FALSE,
                                 entered = FALSE,
                                 arrange = TRUE,
                                 distinct = TRUE,
+                                rm_dates = NULL,
                                 start = rm_dates$hc$project_eval_start,
                                 end = rm_dates$hc$project_eval_end
 ) {
+  if (is.null(pe_coc_funded)) {
+    pe_coc_funded <- get("pe_coc_funded", envir = parent.frame())
+  }
+
+  if (is.null(rm_dates)) {
+    rm_dates <- get("rm_dates", envir = parent.frame())
+  }
 
   addtl_filters <- rlang::enexprs(...)
 

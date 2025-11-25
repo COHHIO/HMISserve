@@ -53,7 +53,17 @@ project_evaluation <- function(
     list(ProjectName = Project$ProjectName[idx],
          ProjectID = Project$ProjectID[idx])
   })
+
   .merged <- rlang::set_names(purrr::map(merged_projects, "ProjectID") |> purrr::flatten_chr(), purrr::map(merged_projects, "ProjectName") |> purrr::flatten_chr())
+
+  # Add additional consolidated projects to list
+  # Get the project names for those IDs
+  new_ids <- c("1306", "1307", "1321")
+  new_names <- Project$ProjectName[Project$ProjectID %in% new_ids]
+
+  # Add to .merged
+  new_entries <- setNames(new_ids, new_names)
+  .merged <- c(.merged, new_entries)
 
   # consolidated projects
   pe_coc_funded <- Funder %>%
