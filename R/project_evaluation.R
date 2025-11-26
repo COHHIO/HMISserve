@@ -1270,7 +1270,7 @@ project_evaluation <- function(
         "All points granted because 0 households entered the project during the reporting period",
         paste(
           ScoredAtEntry,
-          "had a VI-SPDAT score at entry /",
+          "had a VI-SPDAT/HARP score at entry /",
           HoHsEntered,
           "heads of household who entered the project during the reporting period =",
           scales::percent(ScoredAtEntryPercent, accuracy = 0.1)
@@ -1345,9 +1345,6 @@ project_evaluation <- function(
         BenefitsAtExitPoints +
         LHResPriorPoints +
         ReturnToHomelessnessPoints
-        # HousingFirstScore +
-        # ChronicPrioritizationScore +
-        # PrioritizationWorkgroupScore
     ) %>%
     dplyr::select(ProjectType,
                   AltProjectName,
