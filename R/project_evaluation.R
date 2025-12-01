@@ -741,7 +741,7 @@ project_evaluation <- function(
     dplyr::mutate(
       IncreasedIncome = dplyr::if_else(is.na(IncreasedIncome), 0, IncreasedIncome),
       IncreasedIncomeDQ = dplyr::if_else(is.na(IncreasedIncomeDQ), 0, IncreasedIncomeDQ),
-      IncreasedIncomePercent = IncreasedIncome / AdultsMovedInLeavers,
+      IncreasedIncomePercent = IncreasedIncome / AdultsServed,
       IncreasedIncomePercentJoin = dplyr::if_else(is.na(IncreasedIncomePercent), 0, IncreasedIncomePercent)
     ) |> 
     dplyr::cross_join(scoring_rubric %>%
@@ -754,25 +754,25 @@ project_evaluation <- function(
                                    maximum >= IncreasedIncomePercentJoin)) %>%
     dplyr::mutate(
       IncreasedIncomeMath = dplyr::if_else(
-        AdultsMovedInLeavers != 0,
+        co_adults_served != 0,
         paste(
           IncreasedIncome,
           "increased income during their stay /",
-          AdultsMovedInLeavers,
+          AdultsServed,
           "adults who moved into the project's housing =",
           scales::percent(IncreasedIncomePercent, accuracy = 0.1)
         ),
         "All points granted because 0 adults moved into the project's housing"
       ),
       IncreasedIncomePoints = dplyr::case_when(
-        AdultsMovedInLeavers == 0 ~ IncreasedIncomePossible,
+        AdultsServed == 0 ~ IncreasedIncomePossible,
         TRUE ~ points),
       IncreasedIncomePoints = dplyr::case_when(
         IncreasedIncomeDQ == 1 ~ 0,
-        AdultsMovedInLeavers != 0 &
+        AdultsServed != 0 &
           (IncreasedIncomeDQ == 0 | is.na(IncreasedIncomeDQ)) ~ IncreasedIncomePoints
       ),
-      IncreasedIncomeCohort = "AdultsMovedInLeavers"
+      IncreasedIncomeCohort = "AdultsServed"
     ) |>
     dplyr::select(
       ProjectType,
