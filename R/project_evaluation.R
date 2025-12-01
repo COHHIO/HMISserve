@@ -754,7 +754,7 @@ project_evaluation <- function(
                                    maximum >= IncreasedIncomePercentJoin)) %>%
     dplyr::mutate(
       IncreasedIncomeMath = dplyr::if_else(
-        co_adults_served != 0,
+        AdultsServed != 0,
         paste(
           IncreasedIncome,
           "increased income during their stay /",
