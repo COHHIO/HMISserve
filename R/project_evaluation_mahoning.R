@@ -128,10 +128,13 @@ project_evaluation_mahoning <- function(
   pe$ClientsServed <- peval_filter_select(co_clients_served, 
     Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
     vars = vars$prep,  served = TRUE)
-  # several measures will use this
+  
+  # Adults served and leaved (for income measures)
+  co_clients_served_adults <- co_clients_served |>
+    dplyr::mutate(AgeAtCompetitionStart = lubridate::interval(DOB, rm_dates$hc$project_eval_start) / lubridate::years(1)) |> 
+    dplyr::filter(AgeAtCompetitionStart >= 18)
+  
   # Checking for deceased hohs for points adjustments
-
-
   hoh_exits_to_deceased <- pe$ClientsServed %>%
     HMIS::exited_between(rm_dates$hc$project_eval_start, rm_dates$hc$project_eval_end) |>
     dplyr::filter(Destination == 24 &
@@ -636,7 +639,7 @@ project_evaluation_mahoning <- function(
   # Accessing Mainstream Resources: Increase Total Income -------------------
   # PSH, TH, SH, RRH
 
-  income_staging2 <-  pe$AdultsMovedInLeavers %>%
+  income_staging2 <-  pe$AdultsServed %>%
     dplyr::right_join(pe_coc_funded %>%
                         dplyr::select(ProjectType, AltProjectID, AltProjectName) %>%
                         unique(),
@@ -677,7 +680,7 @@ project_evaluation_mahoning <- function(
   pe$IncreaseIncomeMahoning <- income_staging %>%
     tidyr::pivot_wider(names_from = DataCollectionStage,
                        values_from = TotalMonthlyIncome) %>%
-    dplyr::left_join(pe$AdultsMovedInLeavers, by = c("PersonalID", "EnrollmentID")) %>%
+    dplyr::left_join(pe$AdultsServed, by = c("PersonalID", "EnrollmentID")) %>%
     dplyr::left_join(data_quality_flags, by = "AltProjectName") %>%
     dplyr::mutate(
       MostRecentIncome = dplyr::case_when(

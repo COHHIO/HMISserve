@@ -148,10 +148,16 @@ project_evaluation <- function(
   pe <- list()
   pe$ClientsServed <- peval_filter_select(co_clients_served,
     Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE, vars = vars$prep,  served = TRUE)
-  # several measures will use this
+  
+  # Adults served and leaved (for income measures)
+  co_clients_served_adults <- co_clients_served |>
+    dplyr::mutate(AgeAtCompetitionStart = lubridate::interval(DOB, rm_dates$hc$project_eval_start) / lubridate::years(1)) |> 
+    dplyr::filter(AgeAtCompetitionStart >= 18)
+  
+  pe$AdultsServed <- peval_filter_select(co_clients_served_adults,
+    Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE, vars = vars$prep,  served = TRUE)
+
   # Checking for deceased hohs for points adjustments
-
-
   hoh_exits_to_deceased <- pe$ClientsServed %>%
     HMIS::exited_between(rm_dates$hc$project_eval_start, rm_dates$hc$project_eval_end) |>
     dplyr::filter(Destination == 24 &
@@ -657,7 +663,7 @@ project_evaluation <- function(
   # Accessing Mainstream Resources: Increase Total Income -------------------
   # PSH, TH, RRH
 
-  income_staging2 <-  pe$AdultsMovedInLeavers %>%
+  income_staging2 <-  pe$AdultsServed %>%
     dplyr::right_join(pe_coc_funded %>%
                         dplyr::select(ProjectType, AltProjectID, AltProjectName) %>%
                         unique(),
@@ -699,7 +705,7 @@ project_evaluation <- function(
   pe$IncreaseIncome <- income_staging %>%
     tidyr::pivot_wider(names_from = DataCollectionStage,
                        values_from = TotalMonthlyIncome) %>%
-    dplyr::left_join(pe$AdultsMovedInLeavers, by = c("PersonalID", "EnrollmentID")) %>%
+    dplyr::left_join(pe$AdultsServed, by = c("PersonalID", "EnrollmentID")) %>%
     dplyr::left_join(data_quality_flags, by = "AltProjectName") %>%
     dplyr::mutate(
       MostRecentIncome = dplyr::case_when(
@@ -737,10 +743,7 @@ project_evaluation <- function(
       IncreasedIncomeDQ = dplyr::if_else(is.na(IncreasedIncomeDQ), 0, IncreasedIncomeDQ),
       IncreasedIncomePercent = IncreasedIncome / AdultsMovedInLeavers,
       IncreasedIncomePercentJoin = dplyr::if_else(is.na(IncreasedIncomePercent), 0, IncreasedIncomePercent)
-    ) %>%
-    dplyr::mutate(AltProjectType = dplyr::if_else(stringr::str_detect(AltProjectName, "Integrated Services - YDHP - RRH"), "113",
-                                                  dplyr::if_else(AltProjectName == "Vinton - Sojourners Care Network - YHDP Crisis TH", "102", ProjectType))
-    ) |>
+    ) |> 
     dplyr::cross_join(scoring_rubric %>%
                         dplyr::filter(metric == "increase_income")) %>%
     dplyr::mutate(IncreasedIncomePossible = max(points)) %>%
