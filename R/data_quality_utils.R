@@ -337,7 +337,7 @@ dq_race <- function(served_in_date_range,
       ),
       Type = dplyr::case_when(
         Issue == "Missing Race and Ethnicity" ~ "Error",
-        Issue == "Don't Know/Prefers Not to Answer Race and Ethnicty" ~ "Warning"
+        Issue == "Don't Know/Prefers Not to Answer Race and Ethnicity" ~ "Warning"
       ),
       Guidance = dplyr::if_else(Type == "Warning",
                                 guidance$dkr_data,
