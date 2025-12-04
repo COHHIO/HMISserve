@@ -1283,31 +1283,23 @@ project_evaluation_mahoning <- function(
   pe_summary_final_scoring_mahoning <-
     pe_coc_funded[c("ProjectType", "AltProjectName")] %>%
     unique() %>%
-    dplyr::left_join(pe_summary, by = c("ProjectType", "AltProjectName"))
-
-
+    dplyr::left_join(pe_summary, by = c("ProjectType", "AltProjectName")) |> 
+      dplyr::mutate(
+        TotalScore = sum(DQPoints,
+                         NoIncomeAtEntryPoints,
+                         ReturnToHomelessnessPoints,
+                         ExitsToPHPoints,
+                         ScoredAtEntryPoints,
+                         MedianHHIPoints,
+                         IncreasedIncomePoints,
+                         IncreasedEarnedIncomePoints,
+                         BenefitsAtExitPoints,
+                         LHResPriorPoints,
+                         na.rm = TRUE
+        )
+      )
+  
   pe_final_scores <- pe_summary_final_scoring_mahoning
-
-
-  pe_final_scores <- pe_final_scores %>%
-    dplyr::mutate(
-      TotalScore = DQPoints +
-        NoIncomeAtEntryPoints +
-        ExitsToPHPoints +
-        ScoredAtEntryPoints +
-        MedianHHIPoints +
-        IncreasedIncomePoints +
-        IncreasedEarnedIncomePoints +
-        BenefitsAtExitPoints +
-        LHResPriorPoints +
-        ReturnToHomelessnessPoints
-    ) %>%
-    dplyr::select(ProjectType,
-                  AltProjectName,
-                  dplyr::ends_with("Points"),
-                  dplyr::ends_with("Score"),
-                  dplyr::ends_with("Scoring"),
-                  TotalScore)
 
   # adding in Organization Name for publishing the final ranking
   # Org Names for the combined projects have to be done manually
