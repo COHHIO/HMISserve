@@ -648,6 +648,7 @@ project_evaluation_mahoning <- function(
                         unique(),
                       by = c("AltProjectName", "ProjectType", "AltProjectID")) %>%
     dplyr::left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
+    dplyr::filter(DateCreated <= as.Date("2024-12-31")) %>%
     dplyr::select(PersonalID,
                   EnrollmentID,
                   EntryDate,
@@ -688,8 +689,8 @@ project_evaluation_mahoning <- function(
     dplyr::mutate(
       MostRecentIncome = dplyr::case_when(
         !is.na(Exit) ~ Exit,
-        # !is.na(Update) ~ Update,
-        # !is.na(Annual) ~ Annual
+        !is.na(Update) ~ Update,
+        !is.na(Annual) ~ Annual
       ),
       IncomeAtEntry = dplyr::if_else(is.na(Entry), 0, Entry),
       IncomeMostRecent = dplyr::if_else(is.na(MostRecentIncome),
@@ -708,8 +709,9 @@ project_evaluation_mahoning <- function(
       IncomeAtEntry,
       IncomeMostRecent
     )
-
+  
   rm(list = ls(pattern = "income_staging"))
+
 
   summary_pe$IncreaseIncomeMahoning <- pe$IncreaseIncomeMahoning |>
     dplyr::group_by(ProjectType, AltProjectName, IncreasedIncomeDQ) |>
