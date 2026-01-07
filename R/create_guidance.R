@@ -3,19 +3,65 @@
 # Package-level cache
 .guidance_cache <- new.env(parent = emptyenv())
 
+#' Setup Google Sheets authentication
+#' Fetches credentials from AWS Secrets Manager using paws SDK
+#' @keywords internal
+setup_gs4_auth <- function() {
+  # Check if already authenticated
+  if (googlesheets4::gs4_has_token()) {
+    return(invisible(TRUE))
+  }
+  
+  # Check if paws is available
+  if (!requireNamespace("paws", quietly = TRUE)) {
+    stop(
+      "Package 'paws' is required to fetch secrets from AWS.\n",
+      "Install it with: install.packages('paws')"
+    )
+  }
+  
+  # Get configuration from environment variables
+  secret_name <- Sys.getenv("GCP_SECRET_NAME", "hmis-serve/gcp-service-account")
+  region <- Sys.getenv("AWS_REGION", "us-east-2")
+  
+  tryCatch({
+    # Create Secrets Manager client
+    sm <- paws::secretsmanager(config = list(region = region))
+    
+    # Fetch secret
+    secret_response <- sm$get_secret_value(SecretId = secret_name)
+    
+    if (is.null(secret_response$SecretString)) {
+      stop("Secret returned empty")
+    }
+    
+    # Write to temporary file
+    temp_cred <- tempfile(fileext = ".json")
+    on.exit(unlink(temp_cred), add = TRUE)  # Ensure cleanup
+    
+    writeLines(secret_response$SecretString, temp_cred)
+    googlesheets4::gs4_auth(path = temp_cred)
+    
+    message("Successfully authenticated with Google Sheets via AWS Secrets Manager")
+    return(invisible(TRUE))
+    
+  }, error = function(e) {
+    stop(
+      "Failed to authenticate with Google Sheets.\n",
+      "Error: ", e$message, "\n",
+      "Please ensure:\n",
+      "  1. AWS credentials are configured\n",
+      "  2. Secret exists: ", secret_name, "\n",
+      "  3. Region is correct: ", region, "\n",
+      "  4. You have secretsmanager:GetSecretValue permission"
+    )
+  })
+}
+
 #' Ensure Google Sheets authentication is set up
 #' @keywords internal
 ensure_authenticated <- function() {
-  if (!googlesheets4::gs4_has_token()) {
-    cred_path <- Sys.getenv("GOOGLE_SERVICE_ACCOUNT_PATH")
-    if (cred_path == "") {
-      stop("GOOGLE_SERVICE_ACCOUNT_PATH environment variable not set. Use usethis::edit_r_environ() to set it.")
-    }
-    if (!file.exists(cred_path)) {
-      stop("Service account file not found at: ", cred_path)
-    }
-    googlesheets4::gs4_auth(path = cred_path)
-  }
+  setup_gs4_auth()
 }
 
 #' Load guidance data from Google Sheets
