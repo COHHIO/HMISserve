@@ -16,7 +16,7 @@ project_evaluation <- function(
   co_adults_moved_in_leavers <- HMISdata::load_hmis_parquet("co_adults_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
 
   # read scoring rubric from google sheets
-  googlesheets4::gs4_auth(path = "inst/vault/rminor@rminor-333915.iam.gserviceaccount.com.json")
+  ensure_authenticated()
   scoring_rubric <- googlesheets4::read_sheet("1lLsNI8A2E-dDE8O2EHmCP9stSImxZkYJTGx-Oxs1W74",
                                               sheet = "Sheet1",
                                               col_types = c("metric" = "c", "goal_type" = "c", "minimum" = "n", "maximum" = "n",
