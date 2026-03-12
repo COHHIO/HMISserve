@@ -64,7 +64,7 @@ data_quality_summary <- function(co_clients_served,
 
   HMISdata::upload_hmis_data(dq_summary,
                              bucket = "shiny-data-cohhio",
-                             folder = "RME",
+                             folder = Sys.getenv("DATA_ENV", unset = "RME"),
                              file_name = "dq_summary.rds", format = "rds")
 
   return(dq_summary)

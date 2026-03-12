@@ -176,15 +176,20 @@ data_quality <- function(.deps) {
   )
 
   # Upload all files
-  upload_results <- purrr::imap_lgl(dq_data_files, ~ {
-    HMISdata::upload_hmis_data(
-      data = .x,
-      file_name = .y,
-      bucket = "shiny-data-cohhio",
-      folder = "RME",
-      format = "parquet"
+  upload_results <- function(dq_data_files, env = c("prod", "test")) {
+    env <- match.arg(env)
+    folder <- if (env == "prod") "RME" else "RME_test"
+  
+    purrr::imap_lgl(dq_data_files, ~ {
+      HMISdata::upload_hmis_data(
+        data = .x,
+        file_name = .y,
+        bucket = "shiny-data-cohhio",
+        folder = folder,
+        format = "parquet"
     )
   })
+}
 
   # Check results
   if (all(upload_results)) {
