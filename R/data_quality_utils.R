@@ -1698,7 +1698,7 @@ dq_future_assessment_date <- function(served_in_date_range, rm_dates, vars, guid
     ) |>
     dplyr::mutate(
       Issue = "Future Assessment Date",
-      Type = "Warning"
+      Type = "Warning",
       Guidance = guidance$future_assessment
     ) |>
     dplyr::select(dplyr::all_of(vars$we_want))
