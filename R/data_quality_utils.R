@@ -1666,6 +1666,44 @@ dq_future_exits <- function(served_in_date_range, vars, guidance) {
     dplyr::select(dplyr::all_of(vars$we_want))
 }
 
+#' @title Find Future Move-In Dates
+#' @family Clarity Checks
+#' @description Users should not be entering a client into a project on a date in the future. If the Move-In Date is correct, there is no action needed, but going forward, please be sure that your data entry workflow is correct according to your project type.
+#' @inherit data_quality_tables params return
+#' @export
+
+dq_future_move_in_date <- function(served_in_date_range, rm_dates, vars, guidance) {
+  served_in_date_range |>
+    dplyr::filter(MoveInDate > DateCreated & ProjectType %in% c(3, 6, 7, 9, 10, 13)) |> 
+    dplyr::mutate(
+      Issue = "Future Move-In Date",
+      Type = "Warning"
+      Guidance = guidance$future_ees
+    ) |>
+    dplyr::select(dplyr::all_of(vars$we_want))
+}
+
+#' @title Find Future Assessment Dates
+#' @family Clarity Checks
+#' @description Users should not be entering a client into a project on a date in the future. If the Assessment Date is correct, there is no action needed, but going forward, please be sure that your data entry workflow is correct according to your project type.
+#' @inherit data_quality_tables params return
+#' @export
+
+dq_future_assessment_date <- function(served_in_date_range, rm_dates, vars, guidance) {
+  served_in_date_range |>
+    dplyr::filter(AssessmentDate > DateCreated & ProjectType %in% c(3, 6, 7, 9, 10, 13)) |>
+    dplyr::left_join(
+      assessments |> dplyr::select(EnrollmentID, AssessmentDate, DateCreated),
+      by = "EnrollmentID"
+    ) |>
+    dplyr::mutate(
+      Issue = "Future Assessment Date",
+      Type = "Warning"
+      Guidance = guidance$future_assessment
+    ) |>
+    dplyr::select(dplyr::all_of(vars$we_want))
+}
+
 # HoHs Entering PH without SPDATs -----------------------------------------
 
 #' @title Find Non-DV HoHs Entering PH, or TH without SPDAT, HoHs in shelter for 8+ days without SPDAT, and SPDAT Created on a Non-HoH
