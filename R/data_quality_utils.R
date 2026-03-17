@@ -1677,7 +1677,7 @@ dq_future_move_in_date <- function(served_in_date_range, rm_dates, vars, guidanc
     dplyr::filter(MoveInDate > DateCreated & ProjectType %in% c(3, 6, 7, 9, 10, 13)) |> 
     dplyr::mutate(
       Issue = "Future Move-In Date",
-      Type = "Warning"
+      Type = "Warning",
       Guidance = guidance$future_ees
     ) |>
     dplyr::select(dplyr::all_of(vars$we_want))

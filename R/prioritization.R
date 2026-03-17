@@ -614,7 +614,7 @@ prioritization <- function(
 
   HMISdata::upload_hmis_data(prioritization,
                              bucket = "shiny-data-cohhio",
-                             folder = "RME",
+                             folder = Sys.getenv("DATA_ENV", unset = "RME"),
                              file_name = "prioritization.parquet", format = "parquet")
 
   return(prioritization)
