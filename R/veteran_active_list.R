@@ -482,7 +482,7 @@ vet_active <- function(
 
   HMISdata::upload_hmis_data(veteran_active_list,
                              bucket = "shiny-data-cohhio",
-                             folder =folder = Sys.getenv("DATA_ENV", unset = "RME") "RME",
+                             folder = Sys.getenv("DATA_ENV", unset = "RME"),
                              file_name = "veteran_active_list.parquet", format = "parquet")
   HMISdata::upload_hmis_data(vets_housed,
                              bucket = "shiny-data-cohhio",
