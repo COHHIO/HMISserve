@@ -347,6 +347,32 @@ dq_race <- function(served_in_date_range,
     dplyr::select(dplyr::all_of(vars$we_want))
 }
 
+#' @title Data quality report on Sex data
+#' @family Clarity Checks
+#' @family DQ: Missing UDEs
+
+#' @inherit data_quality_tables params return
+
+dq_sex <- function(served_in_date_range,
+                    guidance = NULL,
+                    vars = NULL) {
+  served_in_date_range |>
+    dplyr::mutate(
+      Issue = dplyr::case_when(
+        Sex == 99 ~ "Missing Sex",
+        Sex %in% c(8, 9) ~ "Don't Know/Prefers Not to Answer Sex"
+      ),
+      Type = dplyr::case_when(
+        Issue == "Missing Sex" ~ "Error",
+        Issue == "Don't Know/Prefers Not to Answer Sex" ~ "Warning"
+      ),
+      Guidance = dplyr::if_else(Type == "Warning",
+                                guidance$dkr_data,
+                                guidance$missing_at_entry)
+    ) |>
+    dplyr::filter(!is.na(Issue)) |>
+    dplyr::select(dplyr::all_of(vars$we_want))
+}
 
 # Household Issues --------------------------------------------------------
 #' @title Find Households without adults
