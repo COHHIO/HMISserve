@@ -32,7 +32,7 @@ dependencies$DataQuality <-
 #' @examples
 data_quality <- function(.deps) {
   required <- c(
-    "Client", "Project", "Contacts", "Disabilities",
+    "assessments", "Client", "Project", "Contacts", "Disabilities",
     "Enrollment_extra_Client_Exit_HH_CL_AaE", "Funder",
     "guidance", "HealthAndDV", "IncomeBenefits", "Inventory",
     "living_situation", "mahoning_projects", "rm_dates",
@@ -80,8 +80,8 @@ data_quality <- function(.deps) {
 
   dqs <- purrr::map(rlang::set_names(check_fns), ~{
     i <- which(check_fns == .x)
-    cli::cli_progress_update(id = .pid,,
-                             status = paste0(i,"/",.total,": ",stringr::str_remove(.x, "^dq\\_")))
+    cli::cli_progress_update(id = .pid,
+                            status = paste0(i,"/",.total,": ",stringr::str_remove(.x, "^dq\\_")))
     fn <- getFromNamespace(.x, "HMISserve")
     arg_names <- rlang::set_names(rlang::fn_fmls_names(fn))
     arg_names <- arg_names[!purrr::map_lgl(rlang::fn_fmls(fn), is.logical)]
@@ -89,12 +89,16 @@ data_quality <- function(.deps) {
 
     .call <- rlang::call2(fn, !!!purrr::map(arg_names, ~rlang::sym(.x)))
 
-    out <- rlang::eval_bare(.call)|>
-      dplyr::distinct(PersonalID, EnrollmentID, Issue, .keep_all = TRUE) |>
-      dplyr::mutate_all(as.character)
-    UU::join_check(out)
-    out
-  })
+    tryCatch(
+      rlang::eval_bare(.call) |>
+        dplyr::distinct(PersonalID, EnrollmentID, Issue, .keep_all = TRUE) |>
+        dplyr::mutate_all(as.character),
+      error = function(e) {
+        cli::cli_alert_danger("Error in {.x}: {e$message}")
+        stop(e)
+      }
+    )
+})
 
   cli::cli_progress_update(id = .pid,,
                            status = "Creating data quality table")
@@ -176,20 +180,15 @@ data_quality <- function(.deps) {
   )
 
   # Upload all files
-  upload_results <- function(dq_data_files, env = c("prod", "test")) {
-    env <- match.arg(env)
-    folder <- if (env == "prod") "RME" else "RME_test"
-  
-    purrr::imap_lgl(dq_data_files, ~ {
-      HMISdata::upload_hmis_data(
-        data = .x,
-        file_name = .y,
-        bucket = "shiny-data-cohhio",
-        folder = folder,
-        format = "parquet"
-    )
-  })
-}
+  upload_results <- purrr::imap_lgl(dq_data_files, ~ {
+  HMISdata::upload_hmis_data(
+    data = .x,
+    file_name = .y,
+    bucket = "shiny-data-cohhio",
+    folder = Sys.getenv("DATA_ENV", unset = "RME"),
+    format = "parquet"
+  )
+})
 
   # Check results
   if (all(upload_results)) {

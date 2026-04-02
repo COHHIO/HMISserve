@@ -1635,7 +1635,7 @@ dq_duplicate_ees <- function(served_in_date_range, vars, guidance) {
 
 dq_future_ees <- function(served_in_date_range, rm_dates, vars, guidance) {
   served_in_date_range |>
-    dplyr::filter(EntryDate > DateCreated &
+    dplyr::filter(EntryDate > lubridate::today() &
                     (ProjectType %in% c(0, 1, 2, 4, 8, 13) |
                        (
                          ProjectType %in% c(3, 9) &
@@ -1674,7 +1674,7 @@ dq_future_exits <- function(served_in_date_range, vars, guidance) {
 
 dq_future_move_in_date <- function(served_in_date_range, rm_dates, vars, guidance) {
   served_in_date_range |>
-    dplyr::filter(MoveInDate > DateCreated & ProjectType %in% c(3, 6, 7, 9, 10, 13)) |> 
+    dplyr::filter(MoveInDate > lubridate::today() & ProjectType %in% c(3, 6, 7, 9, 10, 13)) |> 
     dplyr::mutate(
       Issue = "Future Move-In Date",
       Type = "Warning",
@@ -1689,13 +1689,16 @@ dq_future_move_in_date <- function(served_in_date_range, rm_dates, vars, guidanc
 #' @inherit data_quality_tables params return
 #' @export
 
-dq_future_assessment_date <- function(served_in_date_range, rm_dates, vars, guidance) {
+dq_future_assessment_date <- function(served_in_date_range, assessments, rm_dates, vars, guidance) {
   served_in_date_range |>
-    dplyr::filter(AssessmentDate > DateCreated & ProjectType %in% c(3, 6, 7, 9, 10, 13)) |>
+    dplyr::filter(ProjectType %in% c(3, 6, 7, 9, 10, 13)) |>
     dplyr::left_join(
-      assessments |> dplyr::select(EnrollmentID, AssessmentDate, DateCreated),
+      assessments |>
+      dplyr::select(EnrollmentID, AssessmentDate, DateCreated) |>
+      dplyr::rename(AssessmentDateCreated = DateCreated),
       by = "EnrollmentID"
     ) |>
+  dplyr::filter(AssessmentDate > lubridate::today()) |>
     dplyr::mutate(
       Issue = "Future Assessment Date",
       Type = "Warning",
