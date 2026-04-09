@@ -1634,19 +1634,17 @@ dq_duplicate_ees <- function(served_in_date_range, vars, guidance) {
 #' @export
 
 dq_future_ees <- function(served_in_date_range, rm_dates, vars, guidance) {
-  served_in_date_range |>
-    dplyr::filter(EntryDate > lubridate::today() &
-                    (ProjectType %in% c(0, 1, 2, 4, 8, 13) |
-                       (
-                         ProjectType %in% c(3, 9) &
-                           EntryDate >= rm_dates$hc$psh_started_collecting_move_in_date
-                       )))  |>
+  future_entry <- HMISdata::load_looker_data(filename = "Future_Entry", col_types = readr::cols(
+    EntryDate = readr::col_date(),
+    UniqueID = readr::col_character(),
+    EnrollmentID = readr::col_character(),
+    ProjectName = readr::col_character()
+  )) |> 
     dplyr::mutate(
       Issue = "Future Entry Date",
       Type = "Warning",
       Guidance = guidance$future_ees
-    ) |>
-    dplyr::select(dplyr::all_of(vars$we_want))
+    )
 }
 
 #' @title Find Future Exits
@@ -1656,8 +1654,16 @@ dq_future_ees <- function(served_in_date_range, rm_dates, vars, guidance) {
 #' @inherit data_quality_tables params return
 #' @export
 dq_future_exits <- function(served_in_date_range, vars, guidance) {
+  future_exits <- HMISdata::load_looker_data(filename = "Future_Exits", col_types = readr::cols(
+    ExitDate = readr::col_date(),
+    UniqueID = readr::col_character(),
+    EnrollmentID = readr::col_character(),
+    ProjectName = readr::col_character()
+  ))
+  
   served_in_date_range |>
-    dplyr::filter(ExitDate > lubridate::today()) |>
+    dplyr::select(-c(ExitDate, UniqueID, ProjectName))  |> 
+    dplyr::inner_join(future_exits, by = "EnrollmentID") |>
     dplyr::mutate(
       Issue = "Future Exit Date",
       Type = "Error",
@@ -1673,14 +1679,19 @@ dq_future_exits <- function(served_in_date_range, vars, guidance) {
 #' @export
 
 dq_future_move_in_date <- function(served_in_date_range, rm_dates, vars, guidance) {
-  served_in_date_range |>
-    dplyr::filter(MoveInDate > lubridate::today() & ProjectType %in% c(3, 6, 7, 9, 10, 13)) |> 
+  future_movein <- HMISdata::load_looker_data(filename = "Future_MoveInDate", col_types = readr::cols(
+    MoveInDate = readr::col_date(),
+    EntryDate = readr::col_date(),
+    UniqueID = readr::col_character(),
+    EnrollmentID = readr::col_character(),
+    ProjectName = readr::col_character()
+  )) |>
+    dplyr::filter(MoveInDate > lubridate::today()) |> 
     dplyr::mutate(
       Issue = "Future Move-In Date",
       Type = "Warning",
       Guidance = guidance$future_ees
-    ) |>
-    dplyr::select(dplyr::all_of(vars$we_want))
+    )
 }
 
 #' @title Find Future Assessment Dates
@@ -1690,14 +1701,16 @@ dq_future_move_in_date <- function(served_in_date_range, rm_dates, vars, guidanc
 #' @export
 
 dq_future_assessment_date <- function(served_in_date_range, assessments, rm_dates, vars, guidance) {
+  future_assessments <- HMISdata::load_looker_data(filename = "Future_Assessments", col_types = readr::cols(
+    AssessmentDate = readr::col_date(),
+    UniqueID = readr::col_character(),
+    EnrollmentID = readr::col_character(),
+    ProjectName = readr::col_character()
+  ))
+  
   served_in_date_range |>
-    dplyr::filter(ProjectType %in% c(3, 6, 7, 9, 10, 13)) |>
-    dplyr::left_join(
-      assessments |>
-      dplyr::select(EnrollmentID, AssessmentDate, DateCreated) |>
-      dplyr::rename(AssessmentDateCreated = DateCreated),
-      by = "EnrollmentID"
-    ) |>
+    dplyr::select(-c(UniqueID, ProjectName))  |> 
+    dplyr::inner_join(future_assessments, by = "EnrollmentID") |> 
   dplyr::filter(AssessmentDate > lubridate::today()) |>
     dplyr::mutate(
       Issue = "Future Assessment Date",
