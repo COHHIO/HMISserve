@@ -108,7 +108,7 @@ data_quality <- function(.deps) {
     dplyr::mutate(Type = factor(Type, levels = c("High Priority",
                                                  "Error",
                                                  "Warning"))) |>
-    dplyr::filter(ProjectType != 14 |
+    dplyr::filter(is.na(ProjectType) | ProjectType != 14 |
                     (
                       ProjectType == 14 &
                         Issue %in% c(

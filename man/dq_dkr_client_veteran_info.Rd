@@ -23,8 +23,8 @@ Other DQ: SSVF Checks:
 Other DQ: EE Checks: 
 \code{\link{dq_conflicting_income}()},
 \code{\link{dq_duplicate_ees}()},
-\code{\link{dq_future_ees}()},
-\code{\link{dq_future_exits}()},
+\code{\link{dq_future_entry_date}()},
+\code{\link{dq_future_exit_date}()},
 \code{\link{dq_missing_income}()},
 \code{\link{dq_ssvf_missing_percent_ami}()},
 \code{\link{dq_veteran_missing_branch}()},
