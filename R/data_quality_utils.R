@@ -1633,18 +1633,32 @@ dq_duplicate_ees <- function(served_in_date_range, vars, guidance) {
 #' @inherit data_quality_tables params return
 #' @export
 
-dq_future_ees <- function(served_in_date_range, rm_dates, vars, guidance) {
-  future_entry <- HMISdata::load_looker_data(filename = "Future_Entry", col_types = readr::cols(
+dq_future_entry_date <- function(rm_dates, vars, guidance) {
+  raw <- HMISdata::load_looker_data(filename = "Future_Entry", col_types = readr::cols(
     EntryDate = readr::col_date(),
+    CreatedDate = readr::col_date(),
     UniqueID = readr::col_character(),
+    PersonalID = readr::col_character(),
     EnrollmentID = readr::col_character(),
     ProjectName = readr::col_character()
-  )) |> 
+  ))
+
+  raw |> 
+    dplyr::select(-EntryDate) |> 
     dplyr::mutate(
       Issue = "Future Entry Date",
       Type = "Warning",
-      Guidance = guidance$future_ees
-    )
+      Guidance = guidance$future_ees,
+      EntryDate = CreatedDate,  # use data entry date so served_between doesn't exclude it
+      EntryAdjust = NA,
+      ExitDate = NA,
+      HouseholdID = NA,
+      MoveInDateAdjust = NA,
+      ProjectRegion = NA,
+      ProjectType = NA,
+      UserCreating = NA
+    ) |>
+    dplyr::select(dplyr::all_of(vars$we_want))
 }
 
 #' @title Find Future Exits
@@ -1653,7 +1667,7 @@ dq_future_ees <- function(served_in_date_range, rm_dates, vars, guidance) {
 #' @description This client's Exit Date is a date in the future. Please enter the exact date the client left your program. If this client has not yet exited, delete the Exit and then enter the Exit Date once the client is no longer in your program.
 #' @inherit data_quality_tables params return
 #' @export
-dq_future_exits <- function(served_in_date_range, vars, guidance) {
+dq_future_exit_date <- function(served_in_date_range, vars, guidance) {
   future_exits <- HMISdata::load_looker_data(filename = "Future_Exits", col_types = readr::cols(
     ExitDate = readr::col_date(),
     UniqueID = readr::col_character(),
@@ -1678,20 +1692,38 @@ dq_future_exits <- function(served_in_date_range, vars, guidance) {
 #' @inherit data_quality_tables params return
 #' @export
 
-dq_future_move_in_date <- function(served_in_date_range, rm_dates, vars, guidance) {
-  future_movein <- HMISdata::load_looker_data(filename = "Future_MoveInDate", col_types = readr::cols(
+dq_future_move_in_date <- function(rm_dates, vars, guidance) {
+  raw <- HMISdata::load_looker_data(filename = "Future_MoveInDate", col_types = readr::cols(
     MoveInDate = readr::col_date(),
+    CreatedDate = readr::col_date(),
     EntryDate = readr::col_date(),
     UniqueID = readr::col_character(),
+    PersonalID = readr::col_character(),
     EnrollmentID = readr::col_character(),
-    ProjectName = readr::col_character()
-  )) |>
-    dplyr::filter(MoveInDate > lubridate::today()) |> 
+    ProjectName = readr::col_character(),
+    ProjectID = readr::col_character()
+  ))
+  
+  cli::cli_alert_info("Raw columns: {paste(names(raw), collapse = ', ')}")
+  cli::cli_alert_info("Raw nrow: {nrow(raw)}")
+  cli::cli_alert_info("MoveInDate class: {class(raw$MoveInDate)}")
+  
+  raw |>
+    dplyr::filter(MoveInDate > lubridate::today()) |>
     dplyr::mutate(
       Issue = "Future Move-In Date",
       Type = "Warning",
-      Guidance = guidance$future_ees
-    )
+      Guidance = guidance$future_ees,
+      EntryDate = CreatedDate,  # use data entry date so served_between doesn't exclude it
+      EntryAdjust = NA,
+      ExitDate = NA,
+      HouseholdID = NA,
+      MoveInDateAdjust = NA,
+      ProjectRegion = NA,
+      ProjectType = NA,
+      UserCreating = NA
+    ) |>
+    dplyr::select(dplyr::all_of(vars$we_want))
 }
 
 #' @title Find Future Assessment Dates
