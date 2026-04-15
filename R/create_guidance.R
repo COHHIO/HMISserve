@@ -7,9 +7,15 @@
 #' Fetches credentials from AWS Secrets Manager using paws SDK
 #' @keywords internal
 setup_gs4_auth <- function() {
-  # Check if already authenticated
+  # Check if already authenticated with a valid token
   if (googlesheets4::gs4_has_token()) {
-    return(invisible(TRUE))
+    # Verify token is still valid
+    tryCatch({
+      googlesheets4::gs4_user()
+      return(invisible(TRUE))
+    }, error = function(e) {
+      message("Existing token invalid or expired, re-authenticating...")
+    })
   }
   
   # Check if paws is available

@@ -18,8 +18,8 @@ project_evaluation <- function(
   # read scoring rubric from google sheets
   ensure_authenticated()
   scoring_rubric <- googlesheets4::read_sheet("1lLsNI8A2E-dDE8O2EHmCP9stSImxZkYJTGx-Oxs1W74",
-                                              sheet = "Sheet1",
-                                              col_types = c("metric" = "c", "goal_type" = "c", "minimum" = "n", "maximum" = "n",
+                                              sheet = "2026",
+                                              col_types = c("metric" = "c", "altprojecttype" = "c", "goal_type" = "c", "minimum" = "n", "maximum" = "n",
                                                             "points" = "n") |> paste0(collapse = ""))
 
   merged_projects <- setNames(
@@ -414,12 +414,21 @@ project_evaluation <- function(
         ExitsToPH / HoHsServedLeavers
       ),
       ExitsToPHPercentJoin = dplyr::if_else(is.na(ExitsToPHPercent), 0, ExitsToPHPercent)) %>%
-    dplyr::mutate(AltProjectType = dplyr::if_else(stringr::str_detect(AltProjectName, "Integrated Services - YDHP - RRH"), "113",
-                                                  dplyr::if_else(AltProjectName == "Vinton - Sojourners Care Network - YHDP Crisis TH", "102", ProjectType))
-    ) |>
-    dplyr::cross_join(scoring_rubric %>%
-                        dplyr::filter(metric == "exits_to_ph")) %>%
+    dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+    dplyr::left_join(scoring_rubric %>%
+                        dplyr::filter(metric == "exits_to_ph"),
+                    by = "AltProjectType") %>%
+    dplyr::filter(!is.na(metric)) |>
+    dplyr::group_by(AltProjectType) |>
     dplyr::mutate(ExitsToPHPossible = max(points)) %>%
+    dplyr::ungroup() |> 
     dplyr::filter(dplyr::if_else(goal_type == "max",
                                  minimum <= ExitsToPHPercentJoin &
                                    maximum > ExitsToPHPercentJoin,
@@ -511,11 +520,23 @@ project_evaluation <- function(
         ReturnToHomelessness = HoHsServedLeavers - NotHomeless,
         ReturnToHomelessnessPercent = 1 - (NotHomeless / HoHsServedLeavers),
         ReturnToHomelessnessPercentJoin = dplyr::if_else(is.na(ReturnToHomelessnessPercent), 0, ReturnToHomelessnessPercent)) |>
-        dplyr::cross_join(
+      dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+        dplyr::left_join(
           scoring_rubric %>%
-            dplyr::filter(metric == "return_to_homelessness")
-        ) |> 
+            dplyr::filter(metric == "return_to_homelessness"),
+          by = "AltProjectType"
+        ) |>
+      dplyr::filter(!is.na(metric)) |>
+      dplyr::group_by(AltProjectType) |>
       dplyr::mutate(ReturnToHomelessnessPossible = max(points)) %>%
+      dplyr::ungroup() |> 
       dplyr::filter(dplyr::if_else(goal_type == "min",
         minimum <= ReturnToHomelessnessPercentJoin &
         maximum > ReturnToHomelessnessPercentJoin,
@@ -612,12 +633,21 @@ project_evaluation <- function(
       BenefitsAtExit = dplyr::if_else(is.na(BenefitsAtExit), 0, BenefitsAtExit),
       BenefitsAtExitPercent = BenefitsAtExit / AdultsMovedInLeavers,
       BenefitsAtExitPercentJoin = dplyr::if_else(is.na(BenefitsAtExitPercent), 0, BenefitsAtExitPercent)) %>%
-    dplyr::mutate(AltProjectType = dplyr::if_else(stringr::str_detect(AltProjectName, "Integrated Services - YDHP - RRH"), "113",
-                                                  dplyr::if_else(AltProjectName == "Vinton - Sojourners Care Network - YHDP Crisis TH", "102", ProjectType))
-    ) |>
-    dplyr::cross_join(scoring_rubric %>%
-                        dplyr::filter(metric == "benefits_at_exit")) %>%
+    dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+    dplyr::left_join(scoring_rubric %>%
+                        dplyr::filter(metric == "benefits_at_exit"),
+                    by = "AltProjectType") %>%
+    dplyr::filter(!is.na(metric)) |>
+    dplyr::group_by(AltProjectType) |>
     dplyr::mutate(BenefitsAtExitPossible = max(points)) %>%
+    dplyr::ungroup() |> 
     dplyr::filter(dplyr::if_else(goal_type == "max",
                                  minimum <= BenefitsAtExitPercentJoin &
                                    maximum > BenefitsAtExitPercentJoin,
@@ -743,10 +773,22 @@ project_evaluation <- function(
       IncreasedIncomeDQ = dplyr::if_else(is.na(IncreasedIncomeDQ), 0, IncreasedIncomeDQ),
       IncreasedIncomePercent = IncreasedIncome / AdultsServed,
       IncreasedIncomePercentJoin = dplyr::if_else(is.na(IncreasedIncomePercent), 0, IncreasedIncomePercent)
-    ) |> 
-    dplyr::cross_join(scoring_rubric %>%
-                        dplyr::filter(metric == "increase_income")) %>%
+    ) |>
+    dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+    dplyr::left_join(scoring_rubric %>%
+                        dplyr::filter(metric == "increase_income"),
+                    by = "AltProjectType") %>%
+    dplyr::filter(!is.na(metric)) |>
+    dplyr::group_by(AltProjectType) |>
     dplyr::mutate(IncreasedIncomePossible = max(points)) %>%
+    dplyr::ungroup() |> 
     dplyr::filter(dplyr::if_else(goal_type == "max",
                                  minimum <= IncreasedIncomePercentJoin &
                                    maximum > IncreasedIncomePercentJoin,
@@ -871,9 +913,21 @@ project_evaluation <- function(
       IncreasedEarnedIncomePercent = IncreasedEarnedIncome / AdultsMovedInLeavers,
       IncreasedEarnedIncomePercentJoin = dplyr::if_else(is.na(IncreasedEarnedIncomePercent), 0, IncreasedEarnedIncomePercent)
     ) %>%
-    dplyr::cross_join(scoring_rubric %>%
-                        dplyr::filter(metric == "increase_earned_income")) %>%
+    dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+    dplyr::left_join(scoring_rubric %>%
+                        dplyr::filter(metric == "increase_earned_income"),
+                    by = "AltProjectType") %>%
+    dplyr::filter(!is.na(metric)) |> 
+    dplyr::group_by(AltProjectType) |>
     dplyr::mutate(IncreasedEarnedIncomePossible = max(points)) %>%
+    dplyr::ungroup() |> 
     dplyr::filter(dplyr::if_else(goal_type == "max",
                                  minimum <= IncreasedEarnedIncomePercentJoin &
                                    maximum > IncreasedEarnedIncomePercentJoin,
@@ -948,12 +1002,21 @@ project_evaluation <- function(
       LHResPrior = dplyr::if_else(is.na(LHResPrior), 0, LHResPrior),
       LHResPriorPercent = LHResPrior / AdultsEntered,
       LHResPriorPercentJoin = dplyr::if_else(is.na(LHResPriorPercent), 0, LHResPriorPercent)) %>%
-    dplyr::mutate(AltProjectType = dplyr::if_else(stringr::str_detect(AltProjectName, "Integrated Services - YDHP - RRH"), "113",
-                                                  dplyr::if_else(AltProjectName == "Vinton - Sojourners Care Network - YHDP Crisis TH", "102", ProjectType))
-    ) |>
-    dplyr::cross_join(scoring_rubric %>%
-                        dplyr::filter(metric == "res_prior")) %>%
+    dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+    dplyr::left_join(scoring_rubric %>%
+                        dplyr::filter(metric == "res_prior"),
+                    by = "AltProjectType") %>%
+    dplyr::filter(!is.na(metric)) |> 
+    dplyr::group_by(AltProjectType) |>
     dplyr::mutate(LHResPriorPossible = max(points)) %>%
+    dplyr::ungroup() |> 
     dplyr::filter(dplyr::if_else(goal_type == "max",
                                  minimum <= LHResPriorPercentJoin &
                                    maximum > LHResPriorPercentJoin,
@@ -1031,9 +1094,21 @@ project_evaluation <- function(
       NoIncomeAtEntryDQ = dplyr::if_else(is.na(NoIncomeAtEntryDQ), 0, NoIncomeAtEntryDQ),
       NoIncomeAtEntryPercent = NoIncomeAtEntry / AdultsEntered,
       NoIncomeAtEntryPercentJoin = dplyr::if_else(is.na(NoIncomeAtEntryPercent), 0, NoIncomeAtEntryPercent)) %>%
-    dplyr::cross_join(scoring_rubric %>%
-                        dplyr::filter(metric == "entries_no_income")) %>%
+    dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+    dplyr::left_join(scoring_rubric %>%
+                        dplyr::filter(metric == "entries_no_income"),
+                    by = "AltProjectType") %>%
+    dplyr::filter(!is.na(metric)) |> 
+    dplyr::group_by(AltProjectType) |>
     dplyr::mutate(NoIncomeAtEntryPossible = max(points)) %>%
+    dplyr::ungroup() |> 
     dplyr::filter(dplyr::if_else(goal_type == "max",
                                  minimum <= NoIncomeAtEntryPercentJoin &
                                    maximum > NoIncomeAtEntryPercentJoin,
@@ -1140,13 +1215,22 @@ project_evaluation <- function(
     dplyr::summarise(MedHHI = stats::median(HHI)) %>%
     dplyr::ungroup() %>%
     dplyr::right_join(pe_summary_validation, by = c("ProjectType", "AltProjectName")) %>%
-    dplyr::mutate(AltProjectType = dplyr::if_else(stringr::str_detect(AltProjectName, "Integrated Services - YDHP - RRH"), "113",
-                                                  dplyr::if_else(AltProjectName == "Vinton - Sojourners Care Network - YHDP Crisis TH", "102", ProjectType))
-    ) |>
-    dplyr::cross_join(scoring_rubric %>%
-                        dplyr::filter(metric == "homeless_history_index")) %>%
+    dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+    dplyr::left_join(scoring_rubric %>%
+                        dplyr::filter(metric == "homeless_history_index"),
+                    by = "AltProjectType") %>%
+    dplyr::filter(!is.na(metric)) |>
+    dplyr::group_by(AltProjectType) |>
     dplyr::mutate(MedianHHIPossible = max(points),
                   MedHHIJoin = dplyr::if_else(is.na(MedHHI), 0, MedHHI)) %>%
+    dplyr::ungroup() |> 
     dplyr::filter(dplyr::if_else(goal_type == "max",
                                  minimum <= MedHHIJoin &
                                    maximum > MedHHIJoin,
@@ -1259,9 +1343,21 @@ project_evaluation <- function(
                                             ScoredAtEntry / HoHsEntered,
                                             NA),
       ScoredAtEntryPercentJoin = dplyr::if_else(is.na(ScoredAtEntryPercent), 0, ScoredAtEntryPercent)) %>%
-    dplyr::cross_join(scoring_rubric %>%
-                        dplyr::filter(metric == "scored_at_ph_entry")) %>%
+    dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+    dplyr::left_join(scoring_rubric %>%
+                        dplyr::filter(metric == "scored_at_ph_entry"),
+                    by = "AltProjectType") %>%
+    dplyr::filter(!is.na(metric)) |> 
+    dplyr::group_by(AltProjectType) |>
     dplyr::mutate(ScoredAtEntryPossible = max(points)) %>%
+    dplyr::ungroup() |>
     dplyr::filter(dplyr::if_else(goal_type == "max",
                                  minimum <= ScoredAtEntryPercentJoin &
                                    maximum > ScoredAtEntryPercentJoin,
@@ -1311,6 +1407,7 @@ project_evaluation <- function(
     unique() %>%
     dplyr::left_join(pe_summary, by = c("ProjectType", "AltProjectName")) |>
     dplyr::distinct(AltProjectName, .keep_all = TRUE) |>
+    dplyr::filter(ProjectType %in% c(2, 3, 13, 102, 103, 113)) |> 
     dplyr::rowwise() |>
     dplyr::mutate(
       TotalScore = sum(DQPoints,
@@ -1338,17 +1435,22 @@ project_evaluation <- function(
 
   pe_final_scores <- pe_final_scores %>%
     dplyr::mutate(
-      TotalScore = DQPoints +
-        NoIncomeAtEntryPoints +
-        ExitsToPHPoints +
-        ScoredAtEntryPoints +
-        MedianHHIPoints +
-        IncreasedIncomePoints +
-        IncreasedEarnedIncomePoints +
-        BenefitsAtExitPoints +
-        LHResPriorPoints +
+    TotalScore = rowSums(
+      dplyr::across(c(
+        DQPoints,
+        NoIncomeAtEntryPoints,
+        ExitsToPHPoints,
+        ScoredAtEntryPoints,
+        MedianHHIPoints,
+        IncreasedIncomePoints,
+        IncreasedEarnedIncomePoints,
+        BenefitsAtExitPoints,
+        LHResPriorPoints,
         ReturnToHomelessnessPoints
-    ) %>%
+      )),
+      na.rm = TRUE
+    )
+  ) |>
     dplyr::select(ProjectType,
                   AltProjectName,
                   dplyr::ends_with("Points"),
