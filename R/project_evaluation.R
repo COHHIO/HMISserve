@@ -15,6 +15,9 @@ project_evaluation <- function(
   co_hohs_moved_in_leavers <- HMISdata::load_hmis_parquet("co_hohs_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
   co_adults_moved_in_leavers <- HMISdata::load_hmis_parquet("co_adults_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
 
+  project_eval_start <- as.Date("2024-01-01")
+  project_eval_end <- as.Date("2024-12-31")
+
   # read scoring rubric from google sheets
   ensure_authenticated()
   scoring_rubric <- googlesheets4::read_sheet("1lLsNI8A2E-dDE8O2EHmCP9stSImxZkYJTGx-Oxs1W74",
@@ -70,9 +73,9 @@ project_evaluation <- function(
     dplyr::filter(Funder %in% c(1:7, 43, 44) &
                     (ProjectID %in% .merged |
                        (
-                         StartDate <= rm_dates$hc$project_eval_end &
+                         StartDate <= project_eval_end &
                            (is.na(EndDate) |
-                              EndDate >= rm_dates$hc$project_eval_end)
+                              EndDate >= project_eval_end)
                        ))) %>%
     dplyr::select(ProjectID, Funder, StartDate, EndDate) %>%
     dplyr::left_join(Project[c("ProjectID",
@@ -151,7 +154,7 @@ project_evaluation <- function(
   
   # Adults served and leaved (for income measures)
   co_clients_served_adults <- co_clients_served |>
-    dplyr::mutate(AgeAtCompetitionStart = lubridate::interval(DOB, rm_dates$hc$project_eval_start) / lubridate::years(1)) |> 
+    dplyr::mutate(AgeAtCompetitionStart = lubridate::interval(DOB, project_eval_start) / lubridate::years(1)) |> 
     dplyr::filter(AgeAtCompetitionStart >= 18)
   
   pe$AdultsServed <- peval_filter_select(co_clients_served_adults,
@@ -159,7 +162,7 @@ project_evaluation <- function(
 
   # Checking for deceased hohs for points adjustments
   hoh_exits_to_deceased <- pe$ClientsServed %>%
-    HMIS::exited_between(rm_dates$hc$project_eval_start, rm_dates$hc$project_eval_end) |>
+    HMIS::exited_between(project_eval_start, project_eval_end) |>
     dplyr::filter(Destination == 24 &
                     RelationshipToHoH == 1) %>%
     dplyr::group_by(AltProjectID) %>%
@@ -176,7 +179,7 @@ project_evaluation <- function(
     dplyr::group_by(HouseholdID) %>%
     dplyr::mutate(HHEntryDate = min(EntryDate)) %>%
     dplyr::ungroup() |>
-    HMIS::entered_between(rm_dates$hc$project_eval_start, rm_dates$hc$project_eval_end) |>
+    HMIS::entered_between(project_eval_start, project_eval_end) |>
     dplyr::filter(EntryDate == HHEntryDate) |>
     dplyr::select(-HHEntryDate)
 
@@ -373,11 +376,11 @@ project_evaluation <- function(
                       by = c("AltProjectName", "ProjectType", "AltProjectID")) %>%
     dplyr::left_join(data_quality_flags, by = "AltProjectName") |>
     {\(x) {dplyr::filter(x, (ProjectType %in% c(2, 8, 13) &
-                               HMIS::exited_between(x, rm_dates$hc$project_eval_start, rm_dates$hc$project_eval_end, lgl = TRUE)) |
+                               HMIS::exited_between(x, project_eval_start, project_eval_end, lgl = TRUE)) |
                            ProjectType == 3)}}() |> # filtering out non-PSH stayers
     dplyr::mutate(
       DestinationGroup = dplyr::case_when(
-        is.na(Destination) | ExitAdjust > rm_dates$hc$project_eval_end ~
+        is.na(Destination) | ExitAdjust > project_eval_end ~
           "Still in Program at Report End Date",
         Destination %in% destinations$temp ~ "Temporary",
         Destination %in% destinations$perm ~ "Permanent",
@@ -488,10 +491,10 @@ project_evaluation <- function(
                         unique(),
                       by = c("AltProjectName", "ProjectType", "AltProjectID")) %>%
     dplyr::left_join(data_quality_flags, by = "AltProjectName") |>
-    {\(x) {dplyr::filter(x, (HMIS::exited_between(x, rm_dates$hc$project_eval_start, rm_dates$hc$project_eval_end, lgl = TRUE)))}}() |>
+    {\(x) {dplyr::filter(x, (HMIS::exited_between(x, project_eval_start, project_eval_end, lgl = TRUE)))}}() |>
     dplyr::mutate(
       DestinationGroup = dplyr::case_when(
-        is.na(Destination) | ExitAdjust > rm_dates$hc$project_eval_end ~
+        is.na(Destination) | ExitAdjust > project_eval_end ~
           "Still in Program at Report End Date",
         Destination %in% c(101, 116, 118) ~ "Homeless",
         Destination %nin% c(24, 101, 116, 118) ~ "Not Homeless",
