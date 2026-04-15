@@ -967,6 +967,79 @@ project_evaluation <- function(
       IncreasedEarnedIncomeDQ
     )
   
+  # Measure 5.5
+  # Housing Stability: Length of Time Homeless ------------------------------
+  # Only Youth RRH
+
+  pe$LengthOfStay <- pe$HoHsMovedInLeavers %>%
+    dplyr::right_join(pe_coc_funded %>%
+                        dplyr::select(ProjectType, AltProjectID, AltProjectName) %>%
+                        unique(),
+                      by = c("AltProjectName", "ProjectType", "AltProjectID")) %>%
+    dplyr::left_join(data_quality_flags, by = "AltProjectName") %>%
+    dplyr::mutate(DaysInProject = difftime(ExitAdjust, EntryDate, units = "days")) %>%
+    dplyr::select(ProjectType,
+                  AltProjectName,
+                  General_DQ,
+                  EntryDate,
+                  EntryAdjust,
+                  MoveInDateAdjust,
+                  ExitDate,
+                  DaysInProject,
+                  PersonalID,
+                  UniqueID,
+                  EnrollmentID,
+                  HouseholdID)
+
+  summary_pe$LengthOfStay <- pe$LengthOfStay %>%
+    dplyr::group_by(ProjectType, AltProjectName, General_DQ) %>%
+    dplyr::summarise(AverageDays = as.numeric(mean(DaysInProject))) %>%
+    dplyr::ungroup() %>%
+    dplyr::right_join(pe_summary_validation, by = c("ProjectType", "AltProjectName")) %>%
+    dplyr::mutate(
+      AverageDaysJoin = dplyr::if_else(is.na(AverageDays), 0, AverageDays)) %>%
+    dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+    dplyr::right_join(scoring_rubric %>%
+                        dplyr::filter(metric == "length_of_time"),
+                      by = "AltProjectType") %>%
+    dplyr::filter(AltProjectType == "113") |> 
+    dplyr::group_by(AltProjectType) %>%
+    dplyr::mutate(AverageLoSPossible = max(points)) %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(dplyr::if_else(goal_type == "min",
+                                 minimum <= AverageDaysJoin &
+                                   maximum > AverageDaysJoin,
+                                 minimum < AverageDaysJoin &
+                                   maximum >= AverageDaysJoin)) %>%
+    dplyr::mutate(
+      AverageLoSPoints = dplyr::case_when(
+        ClientsMovedInLeavers == 0 &
+          ProjectType != 3 ~ AverageLoSPossible,
+        TRUE ~ points
+      ),
+      AverageLoSMath = dplyr::if_else(
+        ClientsMovedInLeavers == 0,
+        "All points granted because this project had 0 leavers who moved into the project's housing",
+        paste(as.integer(AverageDays), "average days")
+      ),
+      AverageLoSDQ = dplyr::case_when(
+        ProjectType %in% c(2, 8, 13) ~ General_DQ),
+      AverageLoSPoints = dplyr::case_when(
+        AverageLoSDQ == 1 ~ 0,
+        AverageLoSDQ == 0 | is.na(AverageLoSDQ) ~ AverageLoSPoints),
+      AverageLoSPoints = dplyr::if_else(is.na(AverageLoSPoints), 0, AverageLoSPoints),
+      AverageLoSCohort = "ClientsMovedInLeavers"
+    ) %>%
+    dplyr::select(ProjectType, AltProjectName, AverageLoSMath, AverageLoSCohort,
+                  AverageLoSPoints, AverageLoSPossible, AverageLoSDQ)
+  
 
   # Meaure 6
   # % adult who entered project during the date range and came from streets/emergency shelter only
