@@ -24,8 +24,8 @@ peval_filter_select <- function(x,
                                 arrange = TRUE,
                                 distinct = TRUE,
                                 rm_dates = NULL,
-                                start = rm_dates$hc$project_eval_start,
-                                end = rm_dates$hc$project_eval_end
+                                start = as.Date("2024-01-01"),
+                                end = as.Date("2024-12-31")
 ) {
   if (is.null(pe_coc_funded)) {
     pe_coc_funded <- get("pe_coc_funded", envir = parent.frame())
