@@ -996,7 +996,7 @@ project_evaluation <- function(
 
   summary_pe$LengthOfStay <- pe$LengthOfStay %>%
     dplyr::group_by(ProjectType, AltProjectName, General_DQ) %>%
-    dplyr::summarise(AverageDays = as.numeric(mean(DaysInProject))) %>%
+    dplyr::summarise(AverageDays = as.numeric(mean(DaysInProject, units = "days"))) %>%
     dplyr::ungroup() %>%
     dplyr::right_join(pe_summary_validation, by = c("ProjectType", "AltProjectName")) %>%
     dplyr::mutate(
@@ -1483,7 +1483,15 @@ project_evaluation <- function(
     unique() %>%
     dplyr::left_join(pe_summary, by = c("ProjectType", "AltProjectName")) |>
     dplyr::distinct(AltProjectName, .keep_all = TRUE) |>
-    dplyr::filter(ProjectType %in% c(2, 3, 13, 102, 103, 113)) |> 
+    dplyr::mutate(
+        ProjectType = as.character(ProjectType),
+        AltProjectType = dplyr::if_else(
+          stringr::str_detect(AltProjectName, "YHDP"),
+          paste0("1", stringr::str_pad(ProjectType, width = 2, pad = "0")),
+          ProjectType
+        )
+      ) |>
+    dplyr::filter(AltProjectType %in% c(2, 3, 13, 102, 103, 113)) |> 
     dplyr::rowwise() |>
     dplyr::mutate(
       TotalScore = sum(DQPoints,
@@ -1494,10 +1502,23 @@ project_evaluation <- function(
                        MedianHHIPoints,
                        IncreasedIncomePoints,
                        IncreasedEarnedIncomePoints,
+                       AverageLoSPoints,
                        BenefitsAtExitPoints,
                        LHResPriorPoints,
                        na.rm = TRUE
-      )
+      ),
+      TotalPossible = sum(DQPossible,
+                        NoIncomeAtEntryPossible,
+                        ReturnToHomelessnessPossible,
+                        ExitsToPHPossible,
+                        ScoredAtEntryPossible,
+                        MedianHHIPossible,
+                        IncreasedIncomePossible,
+                        IncreasedEarnedIncomePossible,
+                        AverageLoSPossible,
+                        BenefitsAtExitPossible,
+                        LHResPriorPossible,
+                        na.rm = TRUE)
     )
 
 
@@ -1520,6 +1541,7 @@ project_evaluation <- function(
         MedianHHIPoints,
         IncreasedIncomePoints,
         IncreasedEarnedIncomePoints,
+        AverageLoSPoints,
         BenefitsAtExitPoints,
         LHResPriorPoints,
         ReturnToHomelessnessPoints
@@ -1551,7 +1573,7 @@ project_evaluation <- function(
 
 
   exported_pe <- pe[c("ScoredAtPHEntry", "ReturnToHomelessness", "HomelessHistoryIndex", "IncreaseIncome", 
-  "IncreaseEarnedIncome", "ResPrior", "BenefitsAtExit", "ExitsToPH", "EntriesNoIncome")] |>
+  "IncreaseEarnedIncome", "LengthOfStay", "ResPrior", "BenefitsAtExit", "ExitsToPH", "EntriesNoIncome")] |>
     {\(x) {rlang::set_names(x, paste0("pe_", snakecase::to_snake_case(names(x))))}}()
 
   # Combine everything into one named list
