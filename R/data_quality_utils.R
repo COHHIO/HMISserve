@@ -357,6 +357,7 @@ dq_sex <- function(served_in_date_range,
                     guidance = NULL,
                     vars = NULL) {
   served_in_date_range |>
+    dplyr::filter(EntryDate >= as.Date("2025-10-01")) |> 
     dplyr::mutate(
       Issue = dplyr::case_when(
         Sex == 99 ~ "Missing Sex",
