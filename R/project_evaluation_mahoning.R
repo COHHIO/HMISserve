@@ -231,7 +231,7 @@ project_evaluation_mahoning <- function(
   # calculates how many clients have a qualifying error of whatever type. only
   # returns the providers with any qualifying errors.
 
-  dq_for_pe <- HMISdata::load_hmis_parquet("dq_for_pe.parquet", bucket = "shiny-data-cohhio", folder = "RME")
+  dq_for_pe <- HMISdata::load_hmis_parquet("dq_for_pe.parquet", bucket = "shiny-data-cohhio", folder = Sys.getenv("DATA_ENV", unset = "RME"))
 
   dq_flags_staging <- dq_for_pe %>%
     dplyr::right_join(pe_coc_funded, by = c("ProjectType", "ProjectID", "ProjectName")) %>%
@@ -1355,7 +1355,7 @@ purrr::iwalk(all_exports, \(data, name) {
 HMISdata::upload_hmis_data(
     data,
     bucket = "shiny-data-cohhio",
-    folder = "RME",
+    folder = Sys.getenv("DATA_ENV", unset = "RME"),
     file_name = paste0(name, ".parquet"),
     format = "parquet"
   )

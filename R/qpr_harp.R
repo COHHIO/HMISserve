@@ -121,11 +121,11 @@ qpr_spdats <- function(Enrollment_extra_Client_Exit_HH_CL_AaE,
 
   HMISdata::upload_hmis_data(qpr_spdats_county,
                              bucket = "shiny-data-cohhio",
-                             folder = "RME",
+                             folder = Sys.getenv("DATA_ENV", unset = "RME"),
                              file_name = "qpr_spdats_county.parquet", format = "parquet")
   HMISdata::upload_hmis_data(qpr_spdats_project,
                              bucket = "shiny-data-cohhio",
-                             folder = "RME",
+                             folder = Sys.getenv("DATA_ENV", unset = "RME"),
                              file_name = "qpr_spdats_project.parquet", format = "parquet")
 
 }

@@ -20,6 +20,7 @@ tryCatch({
   Project = HMISdata::load_hmis_parquet("Project.parquet")
   Client = HMISdata::load_hmis_parquet("Client.parquet")
   Inventory = HMISdata::load_hmis_parquet("Inventory.parquet")
+  assessments = HMISdata::load_hmis_csv("Assessment.csv")
   Enrollment_extra_Client_Exit_HH_CL_AaE = HMISdata::load_hmis_parquet("Enrollment_extra_Client_Exit_HH_CL_AaE.parquet")
   Disabilities = HMISdata::load_hmis_parquet("Disabilities.parquet")
   Referrals = HMISdata::load_hmis_parquet("Referrals.parquet")
@@ -104,6 +105,7 @@ bucket = "shiny-data-cohhio", folder = "RME")
   deps <- list(Client = Client,
     Project = Project,
     Contacts = Contacts,
+    assessments = assessments,
     Disabilities = Disabilities, 
     Inventory = Inventory, 
     HealthAndDV = HealthAndDV,
