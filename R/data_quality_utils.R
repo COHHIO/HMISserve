@@ -1647,7 +1647,7 @@ dq_future_entry_date <- function(rm_dates, vars, guidance) {
     dplyr::select(-EntryDate) |> 
     dplyr::mutate(
       Issue = "Future Entry Date",
-      Type = "Warning",
+      Type = "Error",
       Guidance = guidance$future_ees,
       EntryDate = CreatedDate,  # use data entry date so served_between doesn't exclude it
       EntryAdjust = NA,
@@ -1712,8 +1712,8 @@ dq_future_move_in_date <- function(rm_dates, vars, guidance) {
     dplyr::filter(MoveInDate > lubridate::today()) |>
     dplyr::mutate(
       Issue = "Future Move-In Date",
-      Type = "Warning",
-      Guidance = guidance$future_ees,
+      Type = "Error",
+      Guidance = guidance$future_movein,
       EntryDate = CreatedDate,  # use data entry date so served_between doesn't exclude it
       EntryAdjust = NA,
       ExitDate = NA,
@@ -1746,7 +1746,7 @@ dq_future_assessment_date <- function(served_in_date_range, assessments, rm_date
   dplyr::filter(AssessmentDate > lubridate::today()) |>
     dplyr::mutate(
       Issue = "Future Assessment Date",
-      Type = "Warning",
+      Type = "Error",
       Guidance = guidance$future_assessment
     ) |>
     dplyr::select(dplyr::all_of(vars$we_want))
