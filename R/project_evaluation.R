@@ -21,7 +21,7 @@ project_evaluation <- function(
   # read scoring rubric from google sheets
   ensure_authenticated()
   scoring_rubric <- googlesheets4::read_sheet("1lLsNI8A2E-dDE8O2EHmCP9stSImxZkYJTGx-Oxs1W74",
-                                              sheet = "2026",
+                                              sheet = "Sheet1",
                                               col_types = c("metric" = "c", "altprojecttype" = "c", "goal_type" = "c", "minimum" = "n", "maximum" = "n",
                                                             "points" = "n") |> paste0(collapse = ""))
 
