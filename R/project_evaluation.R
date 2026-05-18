@@ -432,11 +432,14 @@ project_evaluation <- function(
     dplyr::group_by(AltProjectType) |>
     dplyr::mutate(ExitsToPHPossible = max(points)) %>%
     dplyr::ungroup() |> 
-    dplyr::filter(dplyr::if_else(goal_type == "max",
-                                 minimum <= ExitsToPHPercentJoin &
-                                   maximum > ExitsToPHPercentJoin,
-                                 minimum < ExitsToPHPercentJoin &
-                                   maximum >= ExitsToPHPercentJoin)) %>%
+    dplyr::filter(
+      (ProjectType == 3 & HoHsServed == 0) |
+      (ProjectType != 3 & HoHsServedLeavers == 0) |
+       dplyr::if_else(goal_type == "max",
+        minimum <= ExitsToPHPercentJoin &
+        maximum > ExitsToPHPercentJoin,
+        minimum < ExitsToPHPercentJoin &
+        maximum >= ExitsToPHPercentJoin)) %>%
     dplyr::mutate(ExitsToPHMath = dplyr::case_when(
       ProjectType == 3 & HoHsServed != 0 ~
         paste(
