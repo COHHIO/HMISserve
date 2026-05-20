@@ -795,11 +795,13 @@ project_evaluation <- function(
     dplyr::group_by(AltProjectType) |>
     dplyr::mutate(IncreasedIncomePossible = max(points)) %>%
     dplyr::ungroup() |> 
-    dplyr::filter(dplyr::if_else(goal_type == "max",
-                                 minimum <= IncreasedIncomePercentJoin &
-                                   maximum > IncreasedIncomePercentJoin,
-                                 minimum < IncreasedIncomePercentJoin &
-                                   maximum >= IncreasedIncomePercentJoin)) %>%
+    dplyr::filter(
+      is.na(AdultsServed) | AdultsServed == 0 |
+      dplyr::if_else(goal_type == "max",
+                    minimum <= IncreasedIncomePercentJoin &
+                      maximum > IncreasedIncomePercentJoin,
+                    minimum < IncreasedIncomePercentJoin &
+                      maximum >= IncreasedIncomePercentJoin)) %>%
     dplyr::mutate(
       IncreasedIncomeMath = dplyr::if_else(
         AdultsServed != 0,
@@ -817,8 +819,8 @@ project_evaluation <- function(
         TRUE ~ points),
       IncreasedIncomePoints = dplyr::case_when(
         IncreasedIncomeDQ == 1 ~ 0,
-        AdultsServed != 0 &
-          (IncreasedIncomeDQ == 0 | is.na(IncreasedIncomeDQ)) ~ IncreasedIncomePoints
+        AdultsServed != 0 & (IncreasedIncomeDQ == 0 | is.na(IncreasedIncomeDQ)) ~ IncreasedIncomePoints,
+        TRUE ~ IncreasedIncomePoints
       ),
       IncreasedIncomeCohort = "AdultsServed"
     ) |>
@@ -934,11 +936,13 @@ project_evaluation <- function(
     dplyr::group_by(AltProjectType) |>
     dplyr::mutate(IncreasedEarnedIncomePossible = max(points)) %>%
     dplyr::ungroup() |> 
-    dplyr::filter(dplyr::if_else(goal_type == "max",
-                                 minimum <= IncreasedEarnedIncomePercentJoin &
-                                   maximum > IncreasedEarnedIncomePercentJoin,
-                                 minimum < IncreasedEarnedIncomePercentJoin &
-                                   maximum >= IncreasedEarnedIncomePercentJoin)) %>%
+    dplyr::filter(
+      is.na(AdultsMovedInLeavers) | AdultsMovedInLeavers == 0 |
+      dplyr::if_else(goal_type == "max",
+        minimum <= IncreasedEarnedIncomePercentJoin &
+        maximum > IncreasedEarnedIncomePercentJoin,
+        minimum < IncreasedEarnedIncomePercentJoin &
+        maximum >= IncreasedEarnedIncomePercentJoin)) %>%
     dplyr::mutate(
       IncreasedEarnedIncomeMath = dplyr::if_else(
         AdultsMovedInLeavers != 0,
@@ -1096,11 +1100,13 @@ project_evaluation <- function(
     dplyr::group_by(AltProjectType) |>
     dplyr::mutate(LHResPriorPossible = max(points)) %>%
     dplyr::ungroup() |> 
-    dplyr::filter(dplyr::if_else(goal_type == "max",
-                                 minimum <= LHResPriorPercentJoin &
-                                   maximum > LHResPriorPercentJoin,
-                                 minimum < LHResPriorPercentJoin &
-                                   maximum >= LHResPriorPercentJoin)) %>%
+    dplyr::filter(
+      is.na(AdultsMovedInLeavers) | AdultsMovedInLeavers == 0 |
+      dplyr::if_else(goal_type == "max",
+        minimum <= LHResPriorPercentJoin &
+        maximum > LHResPriorPercentJoin,
+        minimum < LHResPriorPercentJoin &
+        maximum >= LHResPriorPercentJoin)) %>%
     dplyr::mutate(LHResPriorMath = dplyr::if_else(
       AdultsEntered == 0,
       "All points granted because this project has 0 adults who entered the project",
@@ -1310,11 +1316,12 @@ project_evaluation <- function(
     dplyr::mutate(MedianHHIPossible = max(points),
                   MedHHIJoin = dplyr::if_else(is.na(MedHHI), 0, MedHHI)) %>%
     dplyr::ungroup() |> 
-    dplyr::filter(dplyr::if_else(goal_type == "max",
-                                 minimum <= MedHHIJoin &
-                                   maximum > MedHHIJoin,
-                                 minimum < MedHHIJoin &
-                                   maximum >= MedHHIJoin)) %>%
+    dplyr::filter(is.na(AdultsMovedInLeavers) | AdultsMovedInLeavers == 0 |
+      dplyr::if_else(goal_type == "max",
+                      minimum <= MedHHIJoin &
+                        maximum > MedHHIJoin,
+                      minimum < MedHHIJoin &
+                        maximum >= MedHHIJoin)) %>%
     dplyr::mutate(
       MedianHHIMath = dplyr::if_else(
         AdultsEntered == 0,
