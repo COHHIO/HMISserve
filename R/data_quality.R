@@ -138,7 +138,7 @@ data_quality <- function(.deps) {
 
 
   dq_past_year <- HMIS::served_between(dq_main, rm_dates$hc$check_dq_back_to, lubridate::today())
-  dq_for_pe <- HMIS::served_between(dq_main, rm_dates$hc$project_eval_start, rm_dates$hc$project_eval_end)
+  dq_for_pe <- HMIS::served_between(dq_main, as.Date("2024-01-01"), as.Date("2024-12-31"))
 
   cli::cli_progress_update(id = .pid,
                            status = "Overlapping Project Stays")
