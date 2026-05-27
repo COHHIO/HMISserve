@@ -960,8 +960,8 @@ project_evaluation <- function(
         TRUE ~ points),
       IncreasedEarnedIncomePoints = dplyr::case_when(
         IncreasedEarnedIncomeDQ == 1 ~ 0,
-        AdultsMovedInLeavers != 0 &
-          (IncreasedEarnedIncomeDQ == 0 | is.na(IncreasedEarnedIncomeDQ)) ~ IncreasedEarnedIncomePoints
+        AdultsMovedInLeavers != 0 & (IncreasedEarnedIncomeDQ == 0 | is.na(IncreasedEarnedIncomeDQ)) ~ IncreasedEarnedIncomePoints,
+        TRUE ~ IncreasedEarnedIncomePoints
       ),
       IncreasedEarnedIncomeCohort = "AdultsMovedInLeavers"
     ) |>
@@ -1124,7 +1124,8 @@ project_evaluation <- function(
       TRUE ~ points),
     LHResPriorPoints = dplyr::case_when(
       LHResPriorDQ == 1 ~ 0,
-      LHResPriorDQ == 0 | is.na(LHResPriorDQ) ~ LHResPriorPoints),
+      LHResPriorDQ == 0 | is.na(LHResPriorDQ) ~ LHResPriorPoints,
+      TRUE ~ LHResPriorPoints),
     LHResPriorCohort = "AdultsEntered"
     ) %>%
     dplyr::select(
