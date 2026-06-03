@@ -1732,7 +1732,7 @@ dq_future_move_in_date <- function(rm_dates, vars, guidance) {
 #' @inherit data_quality_tables params return
 #' @export
 
-dq_future_assessment_date <- function(served_in_date_range, assessments, rm_dates, vars, guidance) {
+dq_future_assessment_date <- function(served_in_date_range, assessments, vars, guidance) {
   future_assessments <- HMISdata::load_looker_data(filename = "Future_Assessments", col_types = readr::cols(
     AssessmentDate = readr::col_date(),
     UniqueID = readr::col_character(),
@@ -1748,6 +1748,75 @@ dq_future_assessment_date <- function(served_in_date_range, assessments, rm_date
       Issue = "Future Assessment Date",
       Type = "Error",
       Guidance = guidance$future_assessment
+    ) |>
+    dplyr::select(dplyr::all_of(vars$we_want))
+}
+
+#' @title Find Future HARP Dates
+#' @family Clarity Checks
+#' @description Check if a user entered a future date on a HARP assessment
+#' @inherit data_quality_tables params return
+#' @export
+
+dq_future_harp_date <- function(served_in_date_range, assessments, rm_dates, vars, guidance) {
+  future_harps <- HMISdata::load_looker_data(filename = "Future_HARP", col_types = readr::cols(
+    AssessmentDate = readr::col_date(),
+    UniqueID = readr::col_character(),
+    PersonalID = readr::col_character(),
+    EnrollmentID = readr::col_character(),
+    ProjectName = readr::col_character(),
+    AddedDate = readr::col_date()
+  )) |> 
+    dplyr::inner_join(Project |> dplyr::select(ProjectName, ProjectID, ProjectType),
+  by = "ProjectName")
+
+  future_harps |>
+    dplyr::mutate(
+      Issue = "Future Assessment Date",
+      Type = "Error",
+      Guidance = guidance$future_assessment,
+      EntryDate = AddedDate,  # use data entry date so served_between doesn't exclude it
+      EntryAdjust = NA,
+      ExitDate = NA,
+      HouseholdID = NA,
+      MoveInDateAdjust = NA,
+      ProjectRegion = NA,
+      UserCreating = NA
+    ) |>
+    dplyr::select(dplyr::all_of(vars$we_want))
+}
+
+#' @title Find Future Homeless Started Dates
+#' @family Clarity Checks
+#' @description Check if a user entered a future date on Approximate Date this Episode of Homelessness Started Date
+#' @inherit data_quality_tables params return
+#' @export
+
+dq_future_homeless_start_date <- function(served_in_date_range, assessments, rm_dates, vars, guidance) {
+  future_homeless_start_date <- HMISdata::load_looker_data(filename = "Future_ApproxHomelessDate", col_types = readr::cols(
+    ApproximateDateHomeless = readr::col_date(),
+    UniqueID = readr::col_character(),
+    PersonalID = readr::col_character(),
+    EnrollmentID = readr::col_character(),
+    ProjectName = readr::col_character(),
+    ProjectID = readr::col_character(),
+    AddedDate = readr::col_date()
+  )) |> 
+    dplyr::inner_join(Project |> dplyr::select(ProjectName, ProjectType),
+  by = "ProjectName")
+
+  future_homeless_start_date |>
+    dplyr::mutate(
+      Issue = "Future Assessment Date",
+      Type = "Error",
+      Guidance = guidance$future_assessment,
+      EntryDate = AddedDate,  # use data entry date so served_between doesn't exclude it
+      EntryAdjust = NA,
+      ExitDate = NA,
+      HouseholdID = NA,
+      MoveInDateAdjust = NA,
+      ProjectRegion = NA,
+      UserCreating = NA
     ) |>
     dplyr::select(dplyr::all_of(vars$we_want))
 }
