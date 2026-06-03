@@ -129,7 +129,13 @@ data_quality <- function(.deps) {
                           "Missing Veteran Status",
                           "Don't Know/Prefers Not to Answer Veteran Status",
                           "Missing County Served",
-                          "Duplicate Entry Exits"
+                          "Duplicate Entry Exits",
+                          "Future Entry Date",
+                          "Future Exit Date",
+                          "Future Approximate Date Homeless",
+                          "Future Move-In Date",
+                          "Future HARP Date",
+                          "Future Assessment Date"
                         )
                     )) |>
     dplyr::filter(Issue != "Old Outstanding Referral")
