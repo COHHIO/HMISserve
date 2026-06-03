@@ -36,6 +36,8 @@ Other Clarity Checks:
 \code{\link{dq_future_assessment_date}()},
 \code{\link{dq_future_entry_date}()},
 \code{\link{dq_future_exit_date}()},
+\code{\link{dq_future_harp_date}()},
+\code{\link{dq_future_homeless_start_date}()},
 \code{\link{dq_future_move_in_date}()},
 \code{\link{dq_hh_active_client_no_hoh}()},
 \code{\link{dq_hh_children_only}()},
