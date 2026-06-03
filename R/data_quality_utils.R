@@ -1772,7 +1772,7 @@ dq_future_harp_date <- function(served_in_date_range, assessments, vars, guidanc
 
   future_harps |>
     dplyr::mutate(
-      Issue = "Future Assessment Date",
+      Issue = "Future HARP Date",
       Type = "Error",
       Guidance = guidance$future_assessment,
       EntryDate = AddedDate,  # use data entry date so served_between doesn't exclude it
@@ -1807,7 +1807,7 @@ dq_future_homeless_start_date <- function(served_in_date_range, assessments, var
 
   future_homeless_start_date |>
     dplyr::mutate(
-      Issue = "Future Assessment Date",
+      Issue = "Future Approximate Date Homeless",
       Type = "Error",
       Guidance = guidance$future_assessment,
       EntryDate = AddedDate,  # use data entry date so served_between doesn't exclude it
