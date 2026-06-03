@@ -7,7 +7,6 @@
 dq_future_homeless_start_date(
   served_in_date_range,
   assessments,
-  rm_dates,
   vars,
   guidance
 )

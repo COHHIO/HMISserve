@@ -1758,7 +1758,7 @@ dq_future_assessment_date <- function(served_in_date_range, assessments, vars, g
 #' @inherit data_quality_tables params return
 #' @export
 
-dq_future_harp_date <- function(served_in_date_range, assessments, rm_dates, vars, guidance) {
+dq_future_harp_date <- function(served_in_date_range, assessments, vars, guidance) {
   future_harps <- HMISdata::load_looker_data(filename = "Future_HARP", col_types = readr::cols(
     AssessmentDate = readr::col_date(),
     UniqueID = readr::col_character(),
@@ -1792,7 +1792,7 @@ dq_future_harp_date <- function(served_in_date_range, assessments, rm_dates, var
 #' @inherit data_quality_tables params return
 #' @export
 
-dq_future_homeless_start_date <- function(served_in_date_range, assessments, rm_dates, vars, guidance) {
+dq_future_homeless_start_date <- function(served_in_date_range, assessments, vars, guidance) {
   future_homeless_start_date <- HMISdata::load_looker_data(filename = "Future_ApproxHomelessDate", col_types = readr::cols(
     ApproximateDateHomeless = readr::col_date(),
     UniqueID = readr::col_character(),

@@ -4,13 +4,7 @@
 \alias{dq_future_harp_date}
 \title{Find Future HARP Dates}
 \usage{
-dq_future_harp_date(
-  served_in_date_range,
-  assessments,
-  rm_dates,
-  vars,
-  guidance
-)
+dq_future_harp_date(served_in_date_range, assessments, vars, guidance)
 }
 \description{
 Check if a user entered a future date on a HARP assessment
