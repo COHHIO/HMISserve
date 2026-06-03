@@ -1809,7 +1809,7 @@ dq_future_homeless_start_date <- function(served_in_date_range, assessments, var
     dplyr::mutate(
       Issue = "Future Approximate Date Homeless",
       Type = "Error",
-      Guidance = guidance$future_assessment,
+      Guidance = guidance$future_homeless_start_date,
       EntryDate = AddedDate,  # use data entry date so served_between doesn't exclude it
       EntryAdjust = NA,
       ExitDate = NA,
