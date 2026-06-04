@@ -63,6 +63,7 @@ Other Clarity Checks:
 \code{\link{dq_services_on_hh_members_ssvf}()},
 \code{\link{dq_services_on_non_hoh}()},
 \code{\link{dq_services_rent_paid_no_move_in}()},
+\code{\link{dq_sex}()},
 \code{\link{dq_sh_check_exit_destination}()},
 \code{\link{dq_sh_missing_project_stay}()},
 \code{\link{dq_ssn}()},
@@ -78,6 +79,7 @@ Other Clarity Checks:
 Other DQ: Missing UDEs: 
 \code{\link{dq_dob}()},
 \code{\link{dq_race}()},
+\code{\link{dq_sex}()},
 \code{\link{dq_ssn}()},
 \code{\link{dq_veteran}()}
 }
