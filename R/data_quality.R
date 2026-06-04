@@ -125,6 +125,7 @@ data_quality <- function(.deps) {
                           "Don't Know/Prefers Not to Answer SSN",
                           "Missing SSN",
                           "Missing Race and Ethnicity",
+                          "Missing Sex",
                           "Missing Relationship to Head of Household",
                           "Missing Veteran Status",
                           "Don't Know/Prefers Not to Answer Veteran Status",
