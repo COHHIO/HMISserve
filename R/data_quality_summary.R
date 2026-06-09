@@ -18,56 +18,110 @@ data_quality_summary <- function(co_clients_served,
   dq_eligibility_detail <- dq_data$dq_eligibility_detail
   dq_overlaps <- dq_data$dq_overlaps
 
-  dq_summary <- list()
+  today <- lubridate::today()
 
-  client_summary <- dqu_summary(co_clients_served, distinct = FALSE) |>
-    dplyr::rename(`Total Clients` = n)
+  windows <- list(
+    last_year    = today - lubridate::years(1),
+    last_6months = today - lubridate::month(6),
+    last_3months = today - lubridate::month(3),
+    last_month   = today - lubridate::month(1)
+  )
 
-  dq_summary$projects_errors <- dqu_summary(dq_past_year, filter_exp = Type %in% c("Error", "High Priority") &
-                                              !Issue %in% c(
-                                                "No Head of Household",
-                                                "Missing Relationship to Head of Household",
-                                                "Too Many Heads of Household",
-                                                "Children Only Household"
-                                              ), join = client_summary)
+  # Helper: build one dq_summary for a given start date
+  build_summary <- function(start_date) {
+    dq_window <- HMIS::served_between(dq_past_year, start_date, today)
+    overlaps_window <- HMIS::served_between(dq_overlaps, start_date, today)
+    elig_window <- HMIS::served_between(dq_eligibility_detail, start_date, today)
 
-  dq_summary$error_types <- dqu_summary(dq_past_year, filter_exp = Type %in% c("Error", "High Priority"), groups = "Issue", distinct = FALSE)
+    client_summary <- dqu_summary(co_clients_served, distinct = FALSE) |>
+      dplyr::rename(`Total Clients` = n)
 
-  dq_summary$projects_warnings <- dqu_summary(dq_past_year, filter_exp = Type == "Warning", distinct = FALSE, join = client_summary)
+    list(
+      projects_errors = dqu_summary(
+        dq_window,
+        filter_exp = Type %in% c("Error", "High Priority") &
+          !Issue %in% c("No Head of Household",
+                        "Missing Relationship to Head of Household",
+                        "Too Many Heads of Household",
+                        "Children Only Household"),
+        join = client_summary
+      ),
+      error_types = dqu_summary(
+        dq_window,
+        filter_exp = Type %in% c("Error", "High Priority"),
+        groups = "Issue", distinct = FALSE
+      ),
+      projects_warnings = dqu_summary(
+        dq_window,
+        filter_exp = Type == "Warning",
+        distinct = FALSE,
+        join = client_summary
+      ),
+      warning_types = dqu_summary(
+        dq_window,
+        filter_exp = Type == "Warning",
+        groups = "Issue", distinct = FALSE
+      ),
+      hh_issues = dqu_summary(
+        dq_window,
+        filter_exp = Type %in% c("Error", "High Priority") &
+          Issue %in% c("No Head of Household",
+                       "Missing Relationship to Head of Household",
+                       "Too Many Heads of Household",
+                       "Children Only Household"),
+        join = client_summary
+      ),
+      outstanding_referrals = dqu_summary(
+        dq_window,
+        filter_exp = Issue == "Old Outstanding Referral",
+        distinct = FALSE,
+        join = client_summary
+      ),
+      eligibility = dqu_summary(
+        elig_window,
+        filter_exp = Type == "Warning" & Issue %in% c("Check Eligibility"),
+        join = client_summary
+      ),
+      clients_without_spdat = dqu_summary(
+        dq_window,
+        filter_exp = Type == "Warning" & Issue %in% c(
+          "Non-DV HoHs Entering PH or TH without HARP or SPDAT",
+          "HoHs in shelter for 8+ days without HARP or SPDAT"
+        ),
+        join = client_summary
+      ),
+      overlaps = dqu_summary(
+        overlaps_window,
+        distinct = FALSE,
+        join = client_summary
+      ),
+      long_stayer = dqu_summary(
+        dq_window,
+        filter_exp = Type == "Warning" & Issue == "Extremely Long Stayer",
+        join = client_summary
+      ),
+      incorrect_destination = dqu_summary(
+        dq_window,
+        filter_exp = stringr::str_detect(Issue, "Incorrect.*Destination"),
+        join = client_summary
+      ),
+      psh_destination = dqu_summary(
+        dq_window,
+        filter_exp = stringr::str_detect(Issue, "(?:Destination|Missing).*(?:PSH)"),
+        join = client_summary
+      )
+    )
+  }
 
-  dq_summary$warning_types <- dqu_summary(dq_past_year, filter_exp = Type %in% c("Warning"), groups = "Issue", distinct = FALSE)
+  # Build all four windows
+  dq_summary_windows <- purrr::map(windows, build_summary)
 
-
-  dq_summary$hh_issues <- dqu_summary(dq_past_year, filter_exp = Type %in% c("Error", "High Priority") &
-                                        Issue %in% c(
-                                          "No Head of Household",
-                                          "Missing Relationship to Head of Household",
-                                          "Too Many Heads of Household",
-                                          "Children Only Household"
-                                        ), join = client_summary)
-
-
-
-  dq_summary$outstanding_referrals <- dqu_summary(dq_past_year, filter_exp = Issue == "Old Outstanding Referral", distinct = FALSE, join = client_summary)
-
-
-  dq_summary$eligibility <- dqu_summary(HMIS::served_between(dq_eligibility_detail, rm_dates$hc$check_dq_back_to, lubridate::today()), filter_exp = Type == "Warning" & Issue %in% c("Check Eligibility"), join = client_summary)
-
-  dq_summary$clients_without_spdat <- dqu_summary(dq_past_year, filter_exp = Type == "Warning" & Issue %in% c("Non-DV HoHs Entering PH or TH without HARP or SPDAT",
-                                                                                                              "HoHs in shelter for 8+ days without HARP or SPDAT"), join = client_summary)
-
-  dq_summary$overlaps <- dqu_summary(HMIS::served_between(dq_overlaps, rm_dates$hc$check_dq_back_to, lubridate::today()), distinct = FALSE, join = client_summary)
-  dq_summary$long_stayer <- dqu_summary(dq_past_year, filter_exp = Type == "Warning" & Issue == "Extremely Long Stayer", join = client_summary)
-
-  dq_summary$incorrect_destination <- dqu_summary(dq_past_year, filter_exp = stringr::str_detect(Issue, "Incorrect.*Destination"), join = client_summary)
-  dq_summary$psh_destination <- dqu_summary(dq_past_year, filter_exp = stringr::str_detect(Issue, "(?:Destination|Missing).*(?:PSH)"), join = client_summary)
-
-  HMISdata::upload_hmis_data(dq_summary,
+  HMISdata::upload_hmis_data(dq_summary_windows,
                              bucket = "shiny-data-cohhio",
                              folder = Sys.getenv("DATA_ENV", unset = "RME"),
                              file_name = "dq_summary.rds", format = "rds")
 
-  return(dq_summary)
+  return(dq_summary_windows)
 }
 
 
