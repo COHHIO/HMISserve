@@ -10,13 +10,14 @@
 #' @export
 #' @include 04_DataQuality.R 04_DataQuality_utils.R 04_DataQuality_summary_utils.R
 
-data_quality_summary <- function(co_clients_served,
-                                 rm_dates,
-                                 .deps) {
+data_quality_summary <- function(co_clients_served, rm_dates, .deps) {
   dq_data <- data_quality(.deps = deps)
   dq_past_year <- dq_data$dq_past_year
   dq_eligibility_detail <- dq_data$dq_eligibility_detail
   dq_overlaps <- dq_data$dq_overlaps
+
+  Project        <- .deps$Project
+  Referrals_full <- .deps$Referrals_full
 
   today <- lubridate::today()
 
@@ -32,6 +33,8 @@ data_quality_summary <- function(co_clients_served,
     dq_window <- HMIS::served_between(dq_past_year, start_date, today)
     overlaps_window <- HMIS::served_between(dq_overlaps, start_date, today)
     elig_window <- HMIS::served_between(dq_eligibility_detail, start_date, today)
+    referrals_window <- Referrals_full |>
+      dplyr::filter(R_ReferredDate >= start_date)
 
     client_summary <- dqu_summary(co_clients_served, distinct = FALSE) |>
       dplyr::rename(`Total Clients` = n)
@@ -109,7 +112,9 @@ data_quality_summary <- function(co_clients_served,
         dq_window,
         filter_exp = stringr::str_detect(Issue, "(?:Destination|Missing).*(?:PSH)"),
         join = client_summary
-      )
+      ),
+      aps            = dqu_aps(Project = Project, Referrals = referrals_window, data_APs = TRUE),
+      aps_no_referrals = dqu_aps(Project = Project, Referrals = referrals_window, data_APs = FALSE)
     )
   }
 
