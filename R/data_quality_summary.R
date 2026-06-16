@@ -23,9 +23,9 @@ data_quality_summary <- function(co_clients_served, rm_dates, .deps) {
 
   windows <- list(
     last_year    = today - lubridate::years(1),
-    last_6months = today - lubridate::month(6),
-    last_3months = today - lubridate::month(3),
-    last_month   = today - lubridate::month(1)
+    last_6months = today - lubridate::dmonths(6),
+    last_3months = today - lubridate::dmonths(3),
+    last_month   = today - lubridate::dmonths(1)
   )
 
   # Helper: build one dq_summary for a given start date
