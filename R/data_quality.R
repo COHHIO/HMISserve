@@ -171,16 +171,10 @@ data_quality <- function(.deps) {
     stringsAsFactors = FALSE
   )
 
-  dq_aps_no_referrals <- dqu_aps(Project = Project, data_APs = FALSE, Referrals = Referrals_full)
-
-  dq_APs <- dqu_aps(Project = Project, data_APs = TRUE, Referrals = Referrals_full)
-
   dq_data_files <- list(
     "dq_past_year" = dq_past_year,
     "dq_overlaps" = dq_overlaps,
     "dq_providers_df" = dq_providers_df,
-    "dq_aps_no_referrals" = dq_aps_no_referrals,
-    "dq_APs" = dq_APs,
     "dq_eligibility_detail" = dq_eligibility_detail,
     "dq_for_pe" = dq_for_pe,
     "dq_main" = dq_main
