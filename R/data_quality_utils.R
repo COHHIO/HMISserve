@@ -1933,30 +1933,30 @@ dq_without_spdats <- function(served_in_date_range, Funder, Scores, rm_dates, va
     ) |>
     dplyr::select(dplyr::all_of(vars$we_want))
 
-  spdat_on_non_hoh <- ees_with_spdats |>
-    dplyr::left_join(
-      served_in_date_range,
-      by = c(
-        "PersonalID",
-        "UniqueID",
-        "EnrollmentID",
-        "RelationshipToHoH",
-        "EntryDate",
-        "ExitAdjust"
-      )
+  # HARP or SPDAT on a child
+  harp_on_child <- served_in_date_range |>
+    dplyr::mutate(EnrollmentID = as.character(EnrollmentID)) |>
+    dplyr::inner_join(
+      Scores_enrollments |>
+        dplyr::transmute(
+          EnrollmentID = as.character(AssessingProgramEnrollmentID),
+          AssessmentID,
+          AssessmentName = Name
+        ),
+      by = "EnrollmentID"
     ) |>
-    dplyr::filter(RelationshipToHoH != 1) |>
+    dplyr::filter(RelationshipToHoH != 1 & AgeAtEntry < 18) |> 
+    dplyr::distinct(AssessmentID, ProjectID, PersonalID, .keep_all = TRUE) |>
     dplyr::mutate(
-      Issue = "HARP or SPDAT Created on a Non-Head-of-Household",
+      Issue = "HARP or SPDAT Created on a Child",
       Type = "Warning",
-      Guidance = guidance$spdat_on_non_hoh
+      Guidance = guidance$harp_on_child
     ) |>
     dplyr::select(dplyr::all_of(vars$we_want))
 
-
-  out <- dplyr::bind_rows(spdat_on_non_hoh, lh_without_spdat, entered_ph_without_spdat, va_funded)
+  out <- dplyr::bind_rows(harp_on_child, lh_without_spdat, entered_ph_without_spdat, va_funded)
   if (unsh && must_sp())
-    out <- dplyr::bind_rows(lh_without_spdat, spdat_on_non_hoh)
+    out <- dplyr::bind_rows(lh_without_spdat, harp_on_child)
 
   out
 }
