@@ -13,24 +13,24 @@ dq_dkr_client_veteran_info(ssvf_served_in_date_range, vars, guidance)
 Check for Dont Know/Prefers Not to Answer Wars/Branch/Discharge on clients who are Veterans
 }
 \seealso{
-Other DQ: SSVF Checks: 
-\code{\link{dq_ssvf_missing_percent_ami}()},
-\code{\link{dq_veteran_missing_branch}()},
-\code{\link{dq_veteran_missing_discharge_status}()},
-\code{\link{dq_veteran_missing_year_entered}()},
-\code{\link{dq_veteran_missing_year_separated}()}
+Other DQ: SSVF Checks:
+\code{\link[=dq_ssvf_missing_percent_ami]{dq_ssvf_missing_percent_ami()}},
+\code{\link[=dq_veteran_missing_branch]{dq_veteran_missing_branch()}},
+\code{\link[=dq_veteran_missing_discharge_status]{dq_veteran_missing_discharge_status()}},
+\code{\link[=dq_veteran_missing_year_entered]{dq_veteran_missing_year_entered()}},
+\code{\link[=dq_veteran_missing_year_separated]{dq_veteran_missing_year_separated()}}
 
-Other DQ: EE Checks: 
-\code{\link{dq_conflicting_income}()},
-\code{\link{dq_duplicate_ees}()},
-\code{\link{dq_future_entry_date}()},
-\code{\link{dq_future_exit_date}()},
-\code{\link{dq_missing_income}()},
-\code{\link{dq_ssvf_missing_percent_ami}()},
-\code{\link{dq_veteran_missing_branch}()},
-\code{\link{dq_veteran_missing_discharge_status}()},
-\code{\link{dq_veteran_missing_year_entered}()},
-\code{\link{dq_veteran_missing_year_separated}()}
+Other DQ: EE Checks:
+\code{\link[=dq_conflicting_income]{dq_conflicting_income()}},
+\code{\link[=dq_duplicate_ees]{dq_duplicate_ees()}},
+\code{\link[=dq_future_entry_date]{dq_future_entry_date()}},
+\code{\link[=dq_future_exit_date]{dq_future_exit_date()}},
+\code{\link[=dq_missing_income]{dq_missing_income()}},
+\code{\link[=dq_ssvf_missing_percent_ami]{dq_ssvf_missing_percent_ami()}},
+\code{\link[=dq_veteran_missing_branch]{dq_veteran_missing_branch()}},
+\code{\link[=dq_veteran_missing_discharge_status]{dq_veteran_missing_discharge_status()}},
+\code{\link[=dq_veteran_missing_year_entered]{dq_veteran_missing_year_entered()}},
+\code{\link[=dq_veteran_missing_year_separated]{dq_veteran_missing_year_separated()}}
 }
 \concept{DQ: EE Checks}
 \concept{DQ: SSVF Checks}

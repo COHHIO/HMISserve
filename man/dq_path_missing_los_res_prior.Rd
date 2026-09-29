@@ -10,14 +10,14 @@ dq_path_missing_los_res_prior(served_in_date_range, vars, guidance)
 PATH: Missing Residence Prior Length of Stay
 }
 \seealso{
-Other DQ: Path Checks: 
-\code{\link{dq_SOAR_missing_at_exit}()},
-\code{\link{dq_incorrect_path_contact_date}()},
-\code{\link{dq_missing_path_contact}()},
-\code{\link{dq_path_enrolled_missing}()},
-\code{\link{dq_path_no_status_at_exit}()},
-\code{\link{dq_path_reason_missing}()},
-\code{\link{dq_path_status_determination}()},
-\code{\link{dqu_project_small}()}
+Other DQ: Path Checks:
+\code{\link[=dq_SOAR_missing_at_exit]{dq_SOAR_missing_at_exit()}},
+\code{\link[=dq_incorrect_path_contact_date]{dq_incorrect_path_contact_date()}},
+\code{\link[=dq_missing_path_contact]{dq_missing_path_contact()}},
+\code{\link[=dq_path_enrolled_missing]{dq_path_enrolled_missing()}},
+\code{\link[=dq_path_no_status_at_exit]{dq_path_no_status_at_exit()}},
+\code{\link[=dq_path_reason_missing]{dq_path_reason_missing()}},
+\code{\link[=dq_path_status_determination]{dq_path_status_determination()}},
+\code{\link[=dqu_project_small]{dqu_project_small()}}
 }
 \concept{DQ: Path Checks}

@@ -34,6 +34,7 @@ tryCatch({
   Funder = HMISdata::load_hmis_parquet("Funder.parquet")
   Referrals_full = HMISdata::load_hmis_parquet("Referrals_full.parquet")
   Scores = HMISdata::load_hmis_parquet("Scores.parquet")
+  Scores_enrollments = HMISdata::load_hmis_parquet("Scores_enrollments.parquet")
   Users = HMISdata::load_hmis_parquet("Users.parquet")
   living_situation = HMISprep::living_situations
   destinations = HMISprep::destinations
@@ -48,7 +49,7 @@ tryCatch({
   guidance_tibble <- tibble::enframe(guidance) # convert to tibble
 
   HMISdata::upload_hmis_data(guidance_tibble, "guidance.parquet", format = "parquet",
-bucket = "shiny-data-cohhio", folder = "RME")
+bucket = "shiny-data-cohhio", folder = Sys.getenv("DATA_ENV", unset = "RME"))
 
   logger::log_info("Running bed utilization...")
   # Bed Utilization ####
@@ -114,6 +115,7 @@ bucket = "shiny-data-cohhio", folder = "RME")
     Referrals = Referrals,
     Referrals_full = Referrals_full,
     Scores = Scores,
+    Scores_enrollments = Scores_enrollments,
     Users = Users,
     Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE,
     Services_enroll_extras = Services_enroll_extras,
@@ -149,7 +151,7 @@ bucket = "shiny-data-cohhio", folder = "RME")
 
   logger::log_info("HMIS data processing completed successfully")
 }, error = function(e) {
-  logger::log_error("Error in HMIS data processing: {e$message}")
+  logger::log_error("Error in HMIS data processing: {rlang::cnd_message(e)}")
   # Optional: send notification about failure
   quit(status = 1)
 })

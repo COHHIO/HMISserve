@@ -12,9 +12,6 @@ vet_active(
   Enrollment_extra_Client_Exit_HH_CL_AaE
 )
 }
-\arguments{
-\item{Contacts}{}
-}
 \description{
 Title
 }
