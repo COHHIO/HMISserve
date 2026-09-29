@@ -136,7 +136,8 @@ data_quality <- function(.deps) {
                           "Future Approximate Date Homeless",
                           "Future Move-In Date",
                           "Future HARP Date",
-                          "Future Assessment Date"
+                          "Future Assessment Date",
+                          "HARP or SPDAT Created on a Child"
                         )
                     )) |>
     dplyr::filter(Issue != "Old Outstanding Referral")
