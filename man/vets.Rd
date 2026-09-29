@@ -6,9 +6,6 @@
 \usage{
 vets(Client, Enrollment_extra_Client_Exit_HH_CL_AaE, Project, VeteranCE, tay)
 }
-\arguments{
-\item{tay}{}
-}
 \description{
 Title
 }

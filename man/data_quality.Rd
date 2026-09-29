@@ -6,9 +6,6 @@
 \usage{
 data_quality(.deps)
 }
-\arguments{
-\item{check_fns}{}
-}
 \description{
 Title
 }

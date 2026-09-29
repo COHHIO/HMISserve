@@ -12,9 +12,6 @@ client_counts(
   rm_dates
 )
 }
-\arguments{
-\item{rm_dates}{}
-}
 \description{
 Title
 }

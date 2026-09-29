@@ -13,9 +13,6 @@ qpr_ees(
   rm_dates
 )
 }
-\arguments{
-\item{IncomeBenefits}{}
-}
 \description{
 Title
 }

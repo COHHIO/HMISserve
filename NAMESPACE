@@ -102,5 +102,7 @@ export(vet_active)
 export(vets)
 importFrom(UU,"%|0|%")
 importFrom(dplyr,"%>%")
-importFrom(rlang,"%|%")
-importFrom(rlang,"%||%")
+importFrom(rlang,
+  "%|%",
+  "%||%"
+)

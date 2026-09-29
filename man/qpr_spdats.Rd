@@ -12,9 +12,6 @@ qpr_spdats(
   data_types
 )
 }
-\arguments{
-\item{data_types}{}
-}
 \description{
 Title
 }
