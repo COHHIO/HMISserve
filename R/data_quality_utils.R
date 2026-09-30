@@ -1945,7 +1945,7 @@ dq_without_spdats <- function(served_in_date_range, Funder, Scores, rm_dates, va
         ),
       by = "EnrollmentID"
     ) |>
-    dplyr::filter(RelationshipToHoH != 1 & AgeAtEntry < 18) |> 
+    dplyr::filter(AgeAtEntry < 18) |> 
     dplyr::distinct(AssessmentID, ProjectID, PersonalID, .keep_all = TRUE) |>
     dplyr::mutate(
       Issue = "HARP or SPDAT Created on a Child",
