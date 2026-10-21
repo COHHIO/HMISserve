@@ -1,0 +1,9 @@
+.git
+.github
+.Rproj.user
+*.Rproj
+.Rhistory
+.RData
+.Ruserdata
+dev
+aws/build_log.txt
