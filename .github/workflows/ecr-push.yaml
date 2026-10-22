@@ -58,6 +58,15 @@ jobs:
           # Shows the installed source: should be local, not a GitHub SHA.
           docker run --rm "$IMAGE:$FIRST" Rscript -e 'print(packageDescription("HMISserve"))'
 
+          # Prints every package version and the pinned GitHub SHAs, so two builds
+          # of the same commit on different days can be compared from the logs.
+          docker run --rm "$IMAGE:$FIRST" Rscript -e '
+            ip <- installed.packages()
+            print(ip[order(ip[, "Package"]), c("Package", "Version")], quote = FALSE)
+            for (p in c("HMIS", "HMISdata", "HMISprep", "clarity.looker", "UU")) {
+              cat(p, packageDescription(p)$RemoteSha, "\n")
+            }'
+
           for t in $TAGS; do
             docker tag "$IMAGE:$FIRST" "$IMAGE:$t"
             docker push "$IMAGE:$t"

@@ -4,3 +4,4 @@
 ^dev$
 ^\.positai$
 ^\.claude$
+^renv\.lock$
