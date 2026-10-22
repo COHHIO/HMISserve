@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 rocker/tidyverse:4.4
+FROM --platform=linux/amd64 rocker/r-ver:4.4.3
 
 # Install system dependencies
 
@@ -24,29 +24,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install required R packages
+# Restore the exact package set recorded in renv.lock (CRAN versions from a
+# dated P3M snapshot, GitHub packages at pinned commit SHAs).
+# Copying only the lockfile first keeps this layer cached until it changes.
 
-RUN R -e "install.packages(c('pak', 'logger', 'aws.s3', 'dplyr', 'stringr'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages('renv', repos = 'https://p3m.dev/cran/__linux__/noble/2025-04-10')"
 
-RUN R -e "pak::cache_clean()"
+COPY renv.lock /tmp/renv.lock
 
-# Install GitHub dependencies individually (public repos, no token needed)
+RUN R -e "options(timeout = 1200); renv::restore(lockfile = '/tmp/renv.lock', library = '/usr/local/lib/R/site-library', prompt = FALSE)"
 
-RUN R -e "options(pak.no_prompt = TRUE, timeout = 1200); pak::pak('yogat3ch/UU')"
-
-RUN R -e "options(pak.no_prompt = TRUE, timeout = 1200); pak::pak('COHHIO/HMIS')"
-
-RUN R -e "options(pak.no_prompt = TRUE, timeout = 1200); pak::pak('COHHIO/HMISdata')"
-
-RUN R -e "options(pak.no_prompt = TRUE, timeout = 1200); pak::pak('COHHIO/HMISprep')"
-
-RUN R -e "options(pak.no_prompt = TRUE, timeout = 1200); pak::pak('COHHIO/clarity.looker')"
-
-# Install HMISserve from the build context (the PR's code, or master's code on master builds)
+# Install HMISserve from the build context without touching the pinned
+# dependencies (the PR's code, or master's code on master builds)
 
 COPY . /tmp/HMISserve
 
-RUN R -e "options(pak.no_prompt = TRUE, timeout = 1200); pak::local_install('/tmp/HMISserve')"
+RUN R CMD INSTALL --no-deps /tmp/HMISserve
 
 # Create app directory and set working directory
 
