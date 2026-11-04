@@ -1801,7 +1801,7 @@ dq_future_harp_date <- function(served_in_date_range, assessments, vars, guidanc
     dplyr::mutate(
       Issue = "Future HARP Date",
       Type = "Error",
-      Guidance = guidance$future_assessment,
+      Guidance = guidance$future_harp,
       EntryDate = AddedDate,  # use data entry date so served_between doesn't exclude it
       EntryAdjust = NA,
       ExitDate = NA,
