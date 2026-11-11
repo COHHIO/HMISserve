@@ -4,5 +4,6 @@
 .httr-oauth
 .DS_Store
 .quarto
-inst/
+inst/*
+!inst/contracts/
 .positai
