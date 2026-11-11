@@ -1,0 +1,2199 @@
+meta:
+  bucket: shiny-data-cohhio
+  folder: RME
+  generated: '2026-11-11'
+  note: 'Structure only; no data values. Set `reviewed: true` on an entry after checking
+    its types by hand. Reruns keep reviewed schemas. RminorElevated loads every .rds/.parquet
+    in the folder at boot, so unread files are still downloaded by the app.'
+files:
+- name: utilization
+  format: parquet
+  producer: bed_unit_utilization
+  source: R/bed_unit_utilization.R
+  call_site: 1
+  dynamic: false
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    ProjectID: string
+    ProjectName: string
+    ProjectType: double
+    OrganizationName: string
+    UnitCount: int32
+    BedCount: int32
+    Clients: int32
+    Households: int32
+    BedUtilization: string
+    UnitUtilization: string
+  may_be_empty: false
+  keys:
+  - ProjectID
+  review_columns: []
+- name: utilization_unit
+  format: parquet
+  producer: bed_unit_utilization
+  source: R/bed_unit_utilization.R
+  call_site: 2
+  dynamic: false
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    ProjectID: string
+    ProjectName: string
+    ProjectType: double
+    Oct2026: double
+    Sep2026: double
+    Aug2026: double
+    Jul2026: double
+    Jun2026: double
+    May2026: double
+    Apr2026: double
+    Mar2026: double
+    Feb2026: double
+    Jan2026: double
+    Dec2025: double
+    Nov2025: double
+    Oct2025: double
+    Sep2025: double
+    Aug2025: double
+    Jul2025: double
+    Jun2025: double
+    May2025: double
+    Apr2025: double
+    Mar2025: double
+    Feb2025: double
+    Jan2025: double
+    Dec2024: double
+    Nov2024: double
+    accuracy: double
+  may_be_empty: false
+  keys:
+  - ProjectID
+  review_columns: []
+- name: utilization_bed
+  format: parquet
+  producer: bed_unit_utilization
+  source: R/bed_unit_utilization.R
+  call_site: 3
+  dynamic: false
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    ProjectID: string
+    ProjectName: string
+    ProjectType: double
+    Oct2026: double
+    Sep2026: double
+    Aug2026: double
+    Jul2026: double
+    Jun2026: double
+    May2026: double
+    Apr2026: double
+    Mar2026: double
+    Feb2026: double
+    Jan2026: double
+    Dec2025: double
+    Nov2025: double
+    Oct2025: double
+    Sep2025: double
+    Aug2025: double
+    Jul2025: double
+    Jun2025: double
+    May2025: double
+    Apr2025: double
+    Mar2025: double
+    Feb2025: double
+    Jan2025: double
+    Dec2024: double
+    Nov2024: double
+    accuracy: double
+  may_be_empty: false
+  keys:
+  - ProjectID
+  review_columns: []
+- name: utilization_beds
+  format: parquet
+  producer: bed_unit_utilization
+  source: R/bed_unit_utilization.R
+  call_site: 4
+  dynamic: false
+  reviewed: false
+  consumers: mod_body_utilization.R
+  in_s3: true
+  schema:
+    ProjectID: string
+    ProjectName: string
+    ProjectType: double
+    HMISParticipationType: int32
+    HouseholdType: int32
+    UnitInventory: int32
+    BedInventory: int32
+    InventoryStartDate: date32[day]
+    InventoryEndDate: date32[day]
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: utilization_clients
+  format: parquet
+  producer: bed_unit_utilization
+  source: R/bed_unit_utilization.R
+  call_site: 5
+  dynamic: false
+  reviewed: false
+  consumers: mod_body_utilization.R
+  in_s3: true
+  schema:
+    ProjectName: string
+    UniqueID: string
+    ProjectID: string
+    ProjectType: double
+    PersonalID: string
+    EnrollmentID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    EntryAdjust: date32[day]
+    ExitDate: date32[day]
+    Oct2026: double
+    Sep2026: double
+    Aug2026: double
+    Jul2026: double
+    Jun2026: double
+    May2026: double
+    Apr2026: double
+    Mar2026: double
+    Feb2026: double
+    Jan2026: double
+    Dec2025: double
+    Nov2025: double
+    Oct2025: double
+    Sep2025: double
+    Aug2025: double
+    Jul2025: double
+    Jun2025: double
+    May2025: double
+    Apr2025: double
+    Mar2025: double
+    Feb2025: double
+    Jan2025: double
+    Dec2024: double
+    Nov2024: double
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: dq_summary
+  format: rds
+  producer: data_quality_summary
+  source: R/data_quality_summary.R
+  call_site: 1
+  dynamic: false
+  reviewed: false
+  consumers: mod_body_dq_system_summary.R
+  in_s3: true
+  structure:
+    type: list
+    elements:
+      last_year:
+        type: list
+        elements:
+          projects_errors:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          error_types:
+            type: data.frame
+            schema:
+              Issue: character
+              'n': integer
+          projects_warnings:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          warning_types:
+            type: data.frame
+            schema:
+              Issue: character
+              'n': integer
+          hh_issues:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          outstanding_referrals:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          eligibility:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          clients_without_spdat:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          overlaps:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          long_stayer:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          incorrect_destination:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          psh_destination:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          aps:
+            type: data.frame
+            schema:
+              category: character
+              count: integer
+              providertype: character
+              total: integer
+              stringsAsFactors: logical
+              percent: numeric
+              prettypercent: character
+          aps_no_referrals:
+            type: data.frame
+            schema:
+              ProjectID: character
+              ProjectName: character
+              OperatingEndDate: Date
+      last_6months:
+        type: list
+        elements:
+          projects_errors:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          error_types:
+            type: data.frame
+            schema:
+              Issue: character
+              'n': integer
+          projects_warnings:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          warning_types:
+            type: data.frame
+            schema:
+              Issue: character
+              'n': integer
+          hh_issues:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          outstanding_referrals:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          eligibility:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          clients_without_spdat:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          overlaps:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          long_stayer:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          incorrect_destination:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          psh_destination:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          aps:
+            type: data.frame
+            schema:
+              category: character
+              count: integer
+              providertype: character
+              total: integer
+              stringsAsFactors: logical
+              percent: numeric
+              prettypercent: character
+          aps_no_referrals:
+            type: data.frame
+            schema:
+              ProjectID: character
+              ProjectName: character
+              OperatingEndDate: Date
+      last_3months:
+        type: list
+        elements:
+          projects_errors:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          error_types:
+            type: data.frame
+            schema:
+              Issue: character
+              'n': integer
+          projects_warnings:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          warning_types:
+            type: data.frame
+            schema:
+              Issue: character
+              'n': integer
+          hh_issues:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          outstanding_referrals:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          eligibility:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          clients_without_spdat:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          overlaps:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          long_stayer:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          incorrect_destination:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          psh_destination:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          aps:
+            type: data.frame
+            schema:
+              category: character
+              count: integer
+              providertype: character
+              total: integer
+              stringsAsFactors: logical
+              percent: numeric
+              prettypercent: character
+          aps_no_referrals:
+            type: data.frame
+            schema:
+              ProjectID: character
+              ProjectName: character
+              OperatingEndDate: Date
+      last_month:
+        type: list
+        elements:
+          projects_errors:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          error_types:
+            type: data.frame
+            schema:
+              Issue: character
+              'n': integer
+          projects_warnings:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          warning_types:
+            type: data.frame
+            schema:
+              Issue: character
+              'n': integer
+          hh_issues:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          outstanding_referrals:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          eligibility:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          clients_without_spdat:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          overlaps:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          long_stayer:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          incorrect_destination:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          psh_destination:
+            type: data.frame
+            schema:
+              ProjectName: character
+              ProjectID: character
+              n_Issue: integer
+              Total Clients: integer
+              Frequency (Errors / Total Clients): numeric
+              from_mean: numeric
+          aps:
+            type: data.frame
+            schema:
+              category: character
+              count: integer
+              providertype: character
+              total: integer
+              stringsAsFactors: logical
+              percent: numeric
+              prettypercent: character
+          aps_no_referrals:
+            type: data.frame
+            schema:
+              ProjectID: character
+              ProjectName: character
+              OperatingEndDate: Date
+  may_be_empty: false
+- name: dq_past_year
+  format: parquet
+  producer: data_quality
+  source: R/data_quality.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    EnrollmentID: string
+    EntryAdjust: string
+    EntryDate: string
+    ExitDate: string
+    HouseholdID: string
+    MoveInDateAdjust: string
+    PersonalID: string
+    ProjectID: string
+    ProjectName: string
+    ProjectRegion: string
+    ProjectType: string
+    UniqueID: string
+    UserCreating: string
+    Issue: string
+    Type: dictionary<values=string, indices=int8>
+    Guidance: string
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: dq_overlaps
+  format: parquet
+  producer: data_quality
+  source: R/data_quality.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_dq_program_level.R
+  in_s3: true
+  schema:
+    EnrollmentID: string
+    EntryAdjust: date32[day]
+    EntryDate: date32[day]
+    ExitDate: date32[day]
+    HouseholdID: string
+    MoveInDateAdjust: date32[day]
+    PersonalID: string
+    ProjectID: string
+    ProjectName: string
+    ProjectRegion: int32
+    ProjectType: double
+    UniqueID: string
+    UserCreating: string
+    Issue: string
+    Type: string
+    Guidance: string
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: dq_providers_df
+  format: parquet
+  producer: data_quality
+  source: R/data_quality.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers:
+  - mod_body_dq_program_level.R
+  - mod_data_quality.R
+  in_s3: true
+  schema:
+    ProjectID: string
+    ProjectName: string
+  may_be_empty: false
+  keys:
+  - ProjectID
+  review_columns: []
+- name: dq_eligibility_detail
+  format: parquet
+  producer: data_quality
+  source: R/data_quality.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_dq_program_level.R
+  in_s3: true
+  schema:
+    EnrollmentID: string
+    EntryAdjust: date32[day]
+    EntryDate: date32[day]
+    ExitDate: date32[day]
+    HouseholdID: string
+    MoveInDateAdjust: date32[day]
+    PersonalID: string
+    ProjectID: string
+    ProjectName: string
+    ProjectRegion: int32
+    ProjectType: double
+    UniqueID: string
+    UserCreating: string
+    Issue: string
+    Type: string
+    Guidance: string
+    PreviousStreetESSH: int32
+    LengthOfStay: string
+    LivingSituation: string
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: dq_for_pe
+  format: parquet
+  producer: data_quality
+  source: R/data_quality.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    EnrollmentID: string
+    EntryAdjust: string
+    EntryDate: string
+    ExitDate: string
+    HouseholdID: string
+    MoveInDateAdjust: string
+    PersonalID: string
+    ProjectID: string
+    ProjectName: string
+    ProjectRegion: string
+    ProjectType: string
+    UniqueID: string
+    UserCreating: string
+    Issue: string
+    Type: dictionary<values=string, indices=int8>
+    Guidance: string
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: dq_main
+  format: parquet
+  producer: data_quality
+  source: R/data_quality.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers:
+  - mod_body_dq_program_level.R
+  - mod_body_dq_region_level.R
+  - mod_DQIncorrectEEType.R
+  in_s3: true
+  schema:
+    EnrollmentID: string
+    EntryAdjust: string
+    EntryDate: string
+    ExitDate: string
+    HouseholdID: string
+    MoveInDateAdjust: string
+    PersonalID: string
+    ProjectID: string
+    ProjectName: string
+    ProjectRegion: string
+    ProjectType: string
+    UniqueID: string
+    UserCreating: string
+    Issue: string
+    Type: dictionary<values=string, indices=int8>
+    Guidance: string
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: prioritization
+  format: parquet
+  producer: prioritization
+  source: R/prioritization.R
+  call_site: 1
+  dynamic: false
+  reviewed: true
+  consumers: mod_body_prioritization.R
+  in_s3: true
+  schema:
+    PersonalID: string
+    UniqueID: string
+    ProjectName: string
+    ProjectType: double
+    HouseholdID: string
+    EnrollmentID: string
+    MaxED: date32[day]
+    MaxMD: date32[day]
+    NewlyHomeless: bool
+    VeteranStatus: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    MoveInDate: date32[day]
+    DisablingCondition: int32
+    HouseholdSize: int32
+    DisabilityInHH: string
+    HH_DQ_Issue: bool
+    CountyServed: string
+    PHTrack: string
+    ExpectedPHDate: date32[day]
+    Situation: string
+    HousingStatus: dictionary<values=string, indices=int8>
+    TAY: string
+    CountyGuessed: bool
+    Score: int32
+    Deleted: string
+    Name: string
+    Total: int32
+    ChronicStatus: dictionary<values=string, indices=int8>
+    DateToStreetESSH: date32[day]
+    TimesHomelessPastThreeYears: string
+    MonthsHomelessPastThreeYears: string
+    CurrentlyFleeing: string
+    IncomeFromAnySource: string
+  may_be_empty: false
+  keys: PersonalID
+  review_columns:
+  - MaxMD
+  - NewlyHomeless
+  - MoveInDateAdjust
+  - Total
+- name: pe_scored_at_ph_entry_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    ScoredAtEntryDQ: double
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: pe_return_to_homelessness_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    ReturnToHomelessnessDQ: double
+    Destination: int32
+    DestinationGroup: string
+  may_be_empty: false
+  keys:
+  - PersonalID
+  review_columns: []
+- name: pe_homeless_history_index_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    AgeAtEntry: double
+    VeteranStatus: int32
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    DateToStreetESSH: date32[day]
+    TimesHomelessPastThreeYears: int32
+    MonthsHomelessPastThreeYears: int32
+    General_DQ: double
+    Benefits_DQ: double
+    Income_DQ: double
+    LoTH_DQ: double
+    DaysHomelessAtEntry: duration[s]
+    HHI: double
+  may_be_empty: false
+  keys:
+  - PersonalID
+  review_columns: []
+- name: pe_increase_income_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    IncreasedIncomeDQ: double
+    IncomeAtEntry: double
+    IncomeMostRecent: double
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: pe_increase_earned_income_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    IncreasedEarnedIncomeDQ: double
+    EarnedIncomeAtEntry: double
+    EarnedIncomeMostRecent: double
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: pe_res_prior_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    LivingSituation: int32
+    LHResPriorDQ: double
+  may_be_empty: false
+  keys:
+  - PersonalID
+  review_columns: []
+- name: pe_benefits_at_exit_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    BenefitsAtExitDQ: double
+    BenefitsFromAnySource: int32
+    InsuranceFromAnySource: int32
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: pe_exits_to_ph_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    ExitsToPHDQ: double
+    Destination: int32
+    DestinationGroup: string
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: pe_entries_no_income_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    IncomeFromAnySource: int32
+    NoIncomeAtEntryDQ: double
+  may_be_empty: false
+  keys:
+  - PersonalID
+  review_columns: []
+- name: pe_summary_final_scoring_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    ExitsToPH: double
+    ExitsToPHMath: string
+    ExitsToPHPercent: double
+    ExitsToPHPoints: double
+    ExitsToPHPossible: double
+    ExitsToPHDQ: double
+    ExitsToPHCohort: string
+    ReturnToHomelessness: double
+    ReturnToHomelessnessMath: string
+    ReturnToHomelessnessPercent: double
+    ReturnToHomelessnessPoints: double
+    ReturnToHomelessnessPossible: double
+    ReturnToHomelessnessDQ: double
+    ReturnToHomelessnessCohort: int32
+    BenefitsAtExitCohort: string
+    BenefitsAtExit: double
+    BenefitsAtExitMath: string
+    BenefitsAtExitPercent: double
+    BenefitsAtExitPoints: double
+    BenefitsAtExitPossible: double
+    BenefitsAtExitDQ: double
+    IncreasedIncome: double
+    IncreasedIncomeCohort: string
+    IncreasedIncomeMath: string
+    IncreasedIncomePercent: double
+    IncreasedIncomePoints: double
+    IncreasedIncomePossible: double
+    IncreasedIncomeDQ: double
+    IncreasedEarnedIncome: double
+    IncreasedEarnedIncomeCohort: string
+    IncreasedEarnedIncomeMath: string
+    IncreasedEarnedIncomePercent: double
+    IncreasedEarnedIncomePoints: double
+    IncreasedEarnedIncomePossible: double
+    IncreasedEarnedIncomeDQ: double
+    LHResPrior: double
+    LHResPriorCohort: string
+    LHResPriorMath: string
+    LHResPriorPercent: double
+    LHResPriorPoints: double
+    LHResPriorPossible: double
+    LHResPriorDQ: double
+    NoIncomeAtEntry: double
+    NoIncomeAtEntryCohort: string
+    NoIncomeAtEntryMath: string
+    NoIncomeAtEntryPercent: double
+    NoIncomeAtEntryPoints: double
+    NoIncomeAtEntryPossible: double
+    NoIncomeAtEntryDQ: double
+    MedHHI: double
+    MedianHHIMath: string
+    MedianHHICohort: string
+    MedianHHIPoints: double
+    MedianHHIPossible: double
+    MedianHHIDQ: double
+    DQIssues: int32
+    DQCohort: string
+    DQPercent: double
+    DQPoints: double
+    DQMath: string
+    DQPossible: double
+    ScoredAtEntry: double
+    ScoredAtEntryMath: string
+    ScoredAtEntryPercent: double
+    ScoredAtEntryPoints: double
+    ScoredAtEntryCohort: string
+    ScoredAtEntryPossible: double
+    ScoredAtEntryDQ: double
+    TotalScore: double
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: pe_summary_validation_mahoning
+  format: parquet
+  producer: project_evaluation_mahoning
+  source: R/project_evaluation_mahoning.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition_mahoning.R
+  in_s3: true
+  schema:
+    AltProjectID: string
+    ClientsServed: int32
+    AdultsServed: int32
+    AdultsEntered: int32
+    HoHsEntered: int32
+    AdultsMovedInLeavers: int32
+    ClientsMovedInLeavers: int32
+    HoHsServed: int32
+    HoHsServedLeavers: int32
+    HoHsMovedInLeavers: int32
+    ProjectType: string
+    AltProjectName: string
+    HoHDeaths: int32
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: pe_scored_at_ph_entry
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    ScoredAtEntryDQ: double
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: pe_return_to_homelessness
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    ReturnToHomelessnessDQ: double
+    Destination: int32
+    DestinationGroup: string
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: pe_homeless_history_index
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    AgeAtEntry: double
+    VeteranStatus: int32
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    DateToStreetESSH: date32[day]
+    TimesHomelessPastThreeYears: int32
+    MonthsHomelessPastThreeYears: int32
+    General_DQ: double
+    Benefits_DQ: double
+    Income_DQ: double
+    LoTH_DQ: double
+    DaysHomelessAtEntry: duration[s]
+    HHI: double
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: pe_increase_income
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    IncreasedIncomeDQ: double
+    IncomeAtEntry: double
+    IncomeMostRecent: double
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: pe_increase_earned_income
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    IncreasedEarnedIncomeDQ: double
+    EarnedIncomeAtEntry: double
+    EarnedIncomeMostRecent: double
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: pe_length_of_stay
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    General_DQ: double
+    EntryDate: date32[day]
+    EntryAdjust: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    DaysInProject: duration[s]
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: pe_res_prior
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    LivingSituation: int32
+    LHResPriorDQ: double
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: pe_benefits_at_exit
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    BenefitsAtExitDQ: double
+    BenefitsFromAnySource: int32
+    InsuranceFromAnySource: int32
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: pe_exits_to_ph
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    ExitsToPHDQ: double
+    Destination: int32
+    DestinationGroup: string
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: pe_entries_no_income
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    PersonalID: string
+    UniqueID: string
+    EnrollmentID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    MeetsObjective: double
+    IncomeFromAnySource: int32
+    NoIncomeAtEntryDQ: double
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: pe_summary_final_scoring
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    ProjectType: string
+    AltProjectName: string
+    ExitsToPH: double
+    ExitsToPHMath: string
+    ExitsToPHPercent: double
+    ExitsToPHPoints: double
+    ExitsToPHPossible: double
+    ExitsToPHDQ: double
+    ExitsToPHCohort: string
+    ReturnToHomelessness: double
+    ReturnToHomelessnessMath: string
+    ReturnToHomelessnessPercent: double
+    ReturnToHomelessnessPoints: double
+    ReturnToHomelessnessPossible: double
+    ReturnToHomelessnessDQ: double
+    ReturnToHomelessnessCohort: int32
+    BenefitsAtExitCohort: string
+    BenefitsAtExit: double
+    BenefitsAtExitMath: string
+    BenefitsAtExitPercent: double
+    BenefitsAtExitPoints: double
+    BenefitsAtExitPossible: double
+    BenefitsAtExitDQ: double
+    IncreasedIncome: double
+    IncreasedIncomeCohort: string
+    IncreasedIncomeMath: string
+    IncreasedIncomePercent: double
+    IncreasedIncomePoints: double
+    IncreasedIncomePossible: double
+    IncreasedIncomeDQ: double
+    IncreasedEarnedIncome: double
+    IncreasedEarnedIncomeCohort: string
+    IncreasedEarnedIncomeMath: string
+    IncreasedEarnedIncomePercent: double
+    IncreasedEarnedIncomePoints: double
+    IncreasedEarnedIncomePossible: double
+    IncreasedEarnedIncomeDQ: double
+    AverageLoSMath: string
+    AverageLoSCohort: string
+    AverageLoSPoints: double
+    AverageLoSPossible: double
+    AverageLoSDQ: double
+    LHResPrior: double
+    LHResPriorCohort: string
+    LHResPriorMath: string
+    LHResPriorPercent: double
+    LHResPriorPoints: double
+    LHResPriorPossible: double
+    LHResPriorDQ: double
+    NoIncomeAtEntry: double
+    NoIncomeAtEntryCohort: string
+    NoIncomeAtEntryMath: string
+    NoIncomeAtEntryPercent: double
+    NoIncomeAtEntryPoints: double
+    NoIncomeAtEntryPossible: double
+    NoIncomeAtEntryDQ: double
+    MedHHI: double
+    MedianHHIMath: string
+    MedianHHICohort: string
+    MedianHHIPoints: double
+    MedianHHIPossible: double
+    MedianHHIDQ: double
+    DQIssues: int32
+    DQCohort: string
+    DQPercent: double
+    DQPoints: double
+    DQMath: string
+    DQPossible: double
+    ScoredAtEntry: double
+    ScoredAtEntryMath: string
+    ScoredAtEntryPercent: double
+    ScoredAtEntryPoints: double
+    ScoredAtEntryCohort: string
+    ScoredAtEntryPossible: double
+    ScoredAtEntryDQ: double
+    AltProjectType: string
+    TotalScore: double
+    TotalPossible: double
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: pe_summary_validation
+  format: parquet
+  producer: project_evaluation
+  source: R/project_evaluation.R
+  call_site: 1
+  dynamic: true
+  reviewed: false
+  consumers: mod_body_coc_competition.R
+  in_s3: true
+  schema:
+    AltProjectID: string
+    ClientsServed: int32
+    AdultsServed: int32
+    AdultsEntered: int32
+    HoHsEntered: int32
+    AdultsMovedInLeavers: int32
+    ClientsMovedInLeavers: int32
+    HoHsServed: int32
+    HoHsServedLeavers: int32
+    HoHsMovedInLeavers: int32
+    ProjectType: string
+    AltProjectName: string
+    HoHDeaths: int32
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: project_small
+  format: parquet
+  producer: client_counts
+  source: R/qpr_client_counts.R
+  call_site: 1
+  dynamic: false
+  reviewed: true
+  consumers: []
+  in_s3: true
+  schema:
+    ProjectID: string
+    OrganizationName: string
+    OperatingStartDate: date32[day]
+    OperatingEndDate: date32[day]
+    ProgramCoC: string
+    ProjectName: string
+    ProjectType: double
+    HMISParticipationType: int32
+    GrantType: string
+    ProjectCounty: string
+    ProjectRegion: int32
+  may_be_empty: false
+  keys: ProjectID
+  review_columns:
+  - OperatingEndDate
+- name: enrollment_small
+  format: parquet
+  producer: client_counts
+  source: R/qpr_client_counts.R
+  call_site: 2
+  dynamic: false
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    CountyServed: string
+    DateCreated: timestamp[us, tz=UTC]
+    Destination: int32
+    EnrollmentID: string
+    EntryAdjust: date32[day]
+    EntryDate: date32[day]
+    ExitAdjust: date32[day]
+    ExitDate: date32[day]
+    HouseholdID: string
+    LivingSituation: int32
+    MoveInDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    PersonalID: string
+    ProjectID: string
+    RelationshipToHoH: int32
+    UniqueID: string
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: path_referrals
+  format: parquet
+  producer: client_counts
+  source: R/qpr_client_counts.R
+  call_site: 3
+  dynamic: false
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    rrhpsh: string
+    'n': int32
+    PctPATH: string
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: mental_health_unsheltered
+  format: parquet
+  producer: client_counts
+  source: R/qpr_client_counts.R
+  call_site: 4
+  dynamic: false
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    DisabilityType: string
+    'n': int32
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: validation
+  format: parquet
+  producer: client_counts
+  source: R/qpr_client_counts.R
+  call_site: 5
+  dynamic: false
+  reviewed: false
+  consumers:
+  - global.R
+  - mod_body_client_counts.R
+  - mod_body_dq_timeliness.R
+  in_s3: true
+  schema:
+    ProjectID: string
+    ProjectName: string
+    ProjectType: double
+    CountyServed: string
+    EnrollmentID: string
+    PersonalID: string
+    HouseholdID: string
+    RelationshipToHoH: int32
+    EntryDate: date32[day]
+    EntryAdjust: date32[day]
+    MoveInDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    LivingSituation: int32
+    Destination: int32
+    DateCreated: timestamp[us, tz=UTC]
+    UniqueID: string
+  may_be_empty: false
+  keys:
+  - EnrollmentID
+  review_columns: []
+- name: qpr_benefits
+  format: parquet
+  producer: qpr_ees
+  source: R/qpr_ees.R
+  call_site: 1
+  dynamic: false
+  reviewed: false
+  consumers:
+  - global.R
+  - mod_body_mpo.R
+  - qpr_expr_health_insurance.R
+  - qpr_expr_noncash_benefits.R
+  in_s3: true
+  schema:
+    ProgramCoC: string
+    ProjectName: string
+    UniqueID: string
+    PersonalID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    EntryAdjust: date32[day]
+    MoveInDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    ExitAdjust: date32[day]
+    InsuranceFromAnySource: int32
+    BenefitsFromAnySource: int32
+    DataCollectionStage: int32
+    InformationDate: date32[day]
+    ProjectRegion: int32
+    ProjectCounty: string
+    ProjectType: string
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: qpr_income
+  format: parquet
+  producer: qpr_ees
+  source: R/qpr_ees.R
+  call_site: 2
+  dynamic: false
+  reviewed: false
+  consumers:
+  - global.R
+  - mod_body_mpo.R
+  - qpr_expr_income_growth.R
+  in_s3: true
+  schema:
+    ProgramCoC: string
+    ProjectName: string
+    UniqueID: string
+    PersonalID: string
+    HouseholdID: string
+    EntryDate: date32[day]
+    EntryAdjust: date32[day]
+    MoveInDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+    ExitAdjust: date32[day]
+    EntryIncome: double
+    RecentIncome: double
+    ProjectRegion: int32
+    ProjectCounty: string
+    ProjectType: string
+    Difference: double
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: qpr_leavers
+  format: parquet
+  producer: qpr_ees
+  source: R/qpr_ees.R
+  call_site: 3
+  dynamic: false
+  reviewed: true
+  consumers:
+  - global.R
+  - mod_body_mpo.R
+  - qpr_expr_length_of_stay.R
+  - qpr_expr_permanent_housing.R
+  - qpr_expr_temp_permanent_housing.R
+  in_s3: true
+  schema:
+    ProjectID: string
+    OrganizationName: string
+    OperatingStartDate: date32[day]
+    OperatingEndDate: date32[day]
+    ProgramCoC: string
+    ProjectName: string
+    ProjectType: double
+    HMISParticipationType: int32
+    GrantType: string
+    ProjectCounty: string
+    ProjectRegion: int32
+    CountyServed: string
+    DateCreated: timestamp[us, tz=UTC]
+    Destination: int32
+    EnrollmentID: string
+    EntryAdjust: date32[day]
+    EntryDate: date32[day]
+    ExitAdjust: date32[day]
+    ExitDate: date32[day]
+    HouseholdID: string
+    LivingSituation: int32
+    MoveInDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    PersonalID: string
+    RelationshipToHoH: int32
+    UniqueID: string
+    DestinationGroup: string
+    DaysinProject: double
+  may_be_empty: false
+  keys: EnrollmentID
+  review_columns:
+  - OperatingEndDate
+- name: qpr_reentries
+  format: parquet
+  producer: qpr_ees
+  source: R/qpr_ees.R
+  call_site: 4
+  dynamic: false
+  reviewed: false
+  consumers:
+  - global.R
+  - qpr_expr_reentries.R
+  in_s3: true
+  schema:
+    ExitingHP: string
+    EntryDate: date32[day]
+    ExitDate: date32[day]
+    UniqueID: string
+    ProgramCoC: string
+    LatestPermanentProject12: date32[day]
+    is_reentry: bool
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: qpr_rrh_enterers
+  format: parquet
+  producer: qpr_ees
+  source: R/qpr_ees.R
+  call_site: 5
+  dynamic: false
+  reviewed: true
+  consumers:
+  - global.R
+  - mod_body_mpo.R
+  - qpr_expr_rrh_placement.R
+  in_s3: true
+  schema:
+    ProjectID: string
+    OrganizationName: string
+    OperatingStartDate: date32[day]
+    OperatingEndDate: date32[day]
+    ProgramCoC: string
+    ProjectName: string
+    ProjectType: double
+    HMISParticipationType: int32
+    GrantType: string
+    ProjectCounty: string
+    ProjectRegion: int32
+    CountyServed: string
+    DateCreated: timestamp[us, tz=UTC]
+    Destination: int32
+    EnrollmentID: string
+    EntryAdjust: date32[day]
+    EntryDate: date32[day]
+    ExitAdjust: date32[day]
+    ExitDate: date32[day]
+    HouseholdID: string
+    LivingSituation: int32
+    MoveInDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    PersonalID: string
+    RelationshipToHoH: int32
+    UniqueID: string
+    DaysToHouse: double
+    DaysinProject: double
+  may_be_empty: false
+  keys: EnrollmentID
+  review_columns:
+  - OperatingEndDate
+- name: qpr_spending
+  format: parquet
+  producer: qpr_ees
+  source: R/qpr_ees.R
+  call_site: 6
+  dynamic: false
+  reviewed: false
+  consumers:
+  - global.R
+  - qpr_expr_rrh_spending.R
+  in_s3: true
+  schema:
+    UniqueID: string
+    PersonalID: string
+    OrganizationName: string
+    ProjectName: string
+    ProjectRegion: int32
+    ProjectType: double
+    ProgramCoC: string
+    ServiceAmount: double
+    ServiceItemName: string
+    ServiceStartDate: date32[day]
+    EntryDate: date32[day]
+    MoveInDateAdjust: date32[day]
+    ExitDate: date32[day]
+  may_be_empty: true
+  keys: []
+  review_columns: []
+- name: qpr_spdats_county
+  format: parquet
+  producer: qpr_spdats
+  source: R/qpr_harp.R
+  call_site: 1
+  dynamic: false
+  reviewed: false
+  consumers: qpr_expr_community_need_lh.R
+  in_s3: true
+  schema:
+    PersonalID: string
+    UniqueID: string
+    Region: int32
+    ProjectName: string
+    CountyServed: string
+    Score: int32
+    EntryDate: date32[day]
+    ExitDate: date32[day]
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: qpr_spdats_project
+  format: parquet
+  producer: qpr_spdats
+  source: R/qpr_harp.R
+  call_site: 2
+  dynamic: false
+  reviewed: false
+  consumers: qpr_expr_community_need_ph.R
+  in_s3: true
+  schema:
+    EnrollmentID: string
+    UniqueID: string
+    PersonalID: string
+    ProjectID: string
+    ProjectName: string
+    EntryDate: date32[day]
+    ExitDate: date32[day]
+    RelationshipToHoH: int32
+    CountyServed: string
+    Region: int32
+    ScoreDate: date32[day]
+    Score: int32
+    Deleted: string
+    Name: string
+    Total: int32
+    ScoreAdjusted: double
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: veteran_active_list
+  format: parquet
+  producer: vet_active
+  source: R/veteran_active_list.R
+  call_site: 1
+  dynamic: false
+  reviewed: false
+  consumers: mod_body_vet_active_list.R
+  in_s3: true
+  schema:
+    PersonalID: string
+    UniqueID: string
+    DateVeteranIdentified: date32[day]
+    VAEligible: string
+    SSVFIneligible: string
+    PHTrack: string
+    ExpectedPHDate: date32[day]
+    County: string
+    HOMESID: string
+    ListStatus: string
+    EntryDate: date32[day]
+    AgeAtEntry: double
+    DOB: date32[day]
+    DisablingCondition: int32
+    DaysHomelessInProject: duration[s]
+    DaysHomelessBeforeEntry: duration[s]
+    ChronicStatus: dictionary<values=string, indices=int8, ordered>
+    LongTermStatus: dictionary<values=string, indices=int8, ordered>
+    ActiveDate: date32[day]
+    ProjectName_LH: string
+    TimeInProject_LH: string
+    transitional_housing_entry_PH: date32[day]
+    ProjectName_PH: string
+    TimeInProject_PH: string
+    ProjectName_O: string
+    TimeInProject_O: string
+    AcceptDeclineDate: date32[day]
+    OfferAccepted: string
+    PHTypeOffered: string
+    OfferDate: date32[day]
+    Notes: string
+    HoHChronicStatus: dictionary<values=string, indices=int8, ordered>
+    ActiveDateDisplay: string
+    DaysActive: double
+    Age: double
+    Eligibility: string
+    MostRecentOffer: string
+    HousingPlan: string
+    SSVFServiceArea: string
+    PH: string
+    LH: string
+    O: string
+    Enrollments: string
+  may_be_empty: false
+  keys:
+  - PersonalID
+  review_columns: []
+- name: vets_housed
+  format: parquet
+  producer: vet_active
+  source: R/veteran_active_list.R
+  call_site: 2
+  dynamic: false
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    UniqueID: string
+    PersonalID: string
+    EntryAdj: date32[day]
+    ExitDate: date32[day]
+    County: string
+    time_to_house: duration[s]
+    housed_in_last_90: double
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: vets_current
+  format: parquet
+  producer: vets
+  source: R/veterans.R
+  call_site: 1
+  dynamic: false
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    ProjectName: string
+    ProjectType: double
+    ProjectRegion: double
+    NoCurrentHousingPlan: int32
+    HasCurrentHousingPlan: int32
+    Summary: string
+    Veterans: int32
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: current_tay_hohs
+  format: parquet
+  producer: vets
+  source: R/veterans.R
+  call_site: 2
+  dynamic: false
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    ProjectName: string
+    ProjectType: double
+    TAYHHs: double
+    HasPlan: double
+    Summary: string
+  may_be_empty: false
+  keys: []
+  review_columns: []
+- name: guidance
+  format: parquet
+  producer: HMISserve::get_guidance() via aws/process_hmis_serve_data.R
+  source: aws/process_hmis_serve_data.R
+  call_site: 1
+  dynamic: false
+  reviewed: false
+  consumers: []
+  in_s3: true
+  schema:
+    name: string
+    value: 'list<element: string>'
+  may_be_empty: false
+  keys: []
+  review_columns: []
+orphans:
+- file: APs.parquet
+  last_modified: '2026-11-11'
+- file: dq_APs.parquet
+  last_modified: '2026-09-02'
+- file: dq_aps_no_referrals.parquet
+  last_modified: '2026-09-02'
+- file: mahoning_goals.csv
+  last_modified: '2025-07-31'
+- file: mahoning_goals.feather
+  last_modified: '2025-07-31'
+- file: prioritization_colors.rds
+  last_modified: '2025-07-24'
+unread:
+- file: APs.parquet
+  last_modified: '2026-11-11'
+- file: current_tay_hohs.parquet
+  last_modified: '2026-11-11'
+- file: dq_APs.parquet
+  last_modified: '2026-09-02'
+- file: dq_aps_no_referrals.parquet
+  last_modified: '2026-09-02'
+- file: dq_for_pe.parquet
+  last_modified: '2026-11-11'
+- file: dq_past_year.parquet
+  last_modified: '2026-11-11'
+- file: enrollment_small.parquet
+  last_modified: '2026-11-11'
+- file: guidance.parquet
+  last_modified: '2026-11-11'
+- file: mahoning_goals.csv
+  last_modified: '2025-07-31'
+- file: mahoning_goals.feather
+  last_modified: '2025-07-31'
+- file: mental_health_unsheltered.parquet
+  last_modified: '2026-11-11'
+- file: path_referrals.parquet
+  last_modified: '2026-11-11'
+- file: prioritization_colors.rds
+  last_modified: '2025-07-24'
+- file: project_small.parquet
+  last_modified: '2026-11-11'
+- file: utilization.parquet
+  last_modified: '2026-11-11'
+- file: utilization_bed.parquet
+  last_modified: '2026-11-11'
+- file: utilization_unit.parquet
+  last_modified: '2026-11-11'
+- file: vets_current.parquet
+  last_modified: '2026-11-11'
+- file: vets_housed.parquet
+  last_modified: '2026-11-11'
+consumed_not_produced: []
