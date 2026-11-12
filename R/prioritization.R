@@ -34,7 +34,7 @@ prioritization <- function(
   # getting the current living situation and
   # comparing to (recent) LivingSituation to get the most recent
   # new variable RecentLivingSituation
-  CurrentLivingSituation = HMISdata::load_hmis_csv("CurrentLivingSituation.csv",
+  CurrentLivingSituation = hs_read("CurrentLivingSituation.csv", kind = "hmis_csv",
                                                    col_types = HMISdata::hmis_csv_specs$CurrentLivingSituation)
 
   recent_living_situations <- CurrentLivingSituation |>

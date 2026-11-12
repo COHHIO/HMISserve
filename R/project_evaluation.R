@@ -6,13 +6,13 @@ project_evaluation <- function(
   rm_dates
 ) {
 
-  co_clients_served <- HMISdata::load_hmis_parquet("co_clients_served.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_adults_served <- HMISdata::load_hmis_parquet("co_adults_served.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_hohs_served <- HMISdata::load_hmis_parquet("co_hohs_served.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_hohs_entered <- HMISdata::load_hmis_parquet("co_hohs_entered.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_clients_moved_in_leavers <- HMISdata::load_hmis_parquet("co_clients_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_hohs_moved_in_leavers <- HMISdata::load_hmis_parquet("co_hohs_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_adults_moved_in_leavers <- HMISdata::load_hmis_parquet("co_adults_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_clients_served <- hs_read("co_clients_served.parquet")
+  co_adults_served <- hs_read("co_adults_served.parquet")
+  co_hohs_served <- hs_read("co_hohs_served.parquet")
+  co_hohs_entered <- hs_read("co_hohs_entered.parquet")
+  co_clients_moved_in_leavers <- hs_read("co_clients_moved_in_leavers.parquet")
+  co_hohs_moved_in_leavers <- hs_read("co_hohs_moved_in_leavers.parquet")
+  co_adults_moved_in_leavers <- hs_read("co_adults_moved_in_leavers.parquet")
 
   project_eval_start <- as.Date("2024-01-01")
   project_eval_end <- as.Date("2024-12-31")
@@ -253,7 +253,7 @@ project_evaluation <- function(
   # calculates how many clients have a qualifying error of whatever type. only
   # returns the providers with any qualifying errors.
 
-  dq_for_pe <- HMISdata::load_hmis_parquet("dq_for_pe.parquet", bucket = "shiny-data-cohhio", folder = Sys.getenv("DATA_ENV", unset = "RME"))
+  dq_for_pe <- hs_read("dq_for_pe.parquet", kind = "output")
 
   dq_flags_staging <- dq_for_pe %>%
     dplyr::right_join(pe_coc_funded, by = c("ProjectType", "ProjectID", "ProjectName")) %>%
@@ -329,7 +329,7 @@ project_evaluation <- function(
   # TODO Automation email drafts to the right set of users (need to filter COHHIO_admin_user_ids)
   # Retrieve AgencyID, get all attached UserIDs, Send email to those Users.
 
-  User_extras <- HMISdata::load_looker_data(filename = "User", col_types = HMISdata::look_specs$User)
+  User_extras <- hs_read("User", kind = "looker", col_types = HMISdata::look_specs$User)
 
   pe_users_info <- data_quality_flags %>%
     dplyr::filter(GeneralFlagTotal > 0 |
@@ -582,7 +582,7 @@ project_evaluation <- function(
   # Measure 3
   # % adult participants who entered the project during the date range who had 1+ source of non-cash benefits or health insurance at exit
 
-  IncomeBenefits <- HMISdata::load_hmis_parquet("IncomeBenefits.parquet")
+  IncomeBenefits <- hs_read("IncomeBenefits.parquet")
 
   pe$BenefitsAtExit <- pe$AdultsMovedInLeavers %>%
     dplyr::right_join(pe_coc_funded %>%
@@ -1569,7 +1569,7 @@ project_evaluation <- function(
   # adding in Organization Name for publishing the final ranking
   # Org Names for the combined projects have to be done manually
 
-  Organization <- HMISdata::load_hmis_csv("Organization.csv")
+  Organization <- hs_read("Organization.csv", kind = "hmis_csv")
   project_and_alt_project <- pe_coc_funded %>%
     dplyr::left_join(Project[c("ProjectID", "OrganizationID")], by = "ProjectID") %>%
     dplyr::left_join(Organization[c("OrganizationID", "OrganizationName")],
