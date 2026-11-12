@@ -1,5 +1,4 @@
 #' @export
-#' @include 06_Project_Evaluation_utils.R
 project_evaluation <- function(
   Project,
   Funder,

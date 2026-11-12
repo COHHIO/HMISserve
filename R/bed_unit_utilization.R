@@ -4,7 +4,6 @@
 #' @param Project Project data frame from export
 #' @export
 #'
-#' @include 01_Bed_Unit_Utilization_utils.R
 bed_unit_utilization <- function(
     Project,
     Inventory,

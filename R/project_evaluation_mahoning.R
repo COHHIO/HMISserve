@@ -1,18 +1,17 @@
 #' @export
-#' @include 06_Project_Evaluation_utils.R
 project_evaluation_mahoning <- function(
     Project,
     Funder,
     Enrollment_extra_Client_Exit_HH_CL_AaE,
     rm_dates) {
 
-  co_clients_served <- HMISdata::load_hmis_parquet("co_clients_served.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_adults_served <- HMISdata::load_hmis_parquet("co_adults_served.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_hohs_served <- HMISdata::load_hmis_parquet("co_hohs_served.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_hohs_entered <- HMISdata::load_hmis_parquet("co_hohs_entered.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_clients_moved_in_leavers <- HMISdata::load_hmis_parquet("co_clients_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_hohs_moved_in_leavers <- HMISdata::load_hmis_parquet("co_hohs_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
-  co_adults_moved_in_leavers <- HMISdata::load_hmis_parquet("co_adults_moved_in_leavers.parquet", bucket = "hud.csv-daily", "hmis_output")
+  co_clients_served <- hs_read("co_clients_served.parquet")
+  co_adults_served <- hs_read("co_adults_served.parquet")
+  co_hohs_served <- hs_read("co_hohs_served.parquet")
+  co_hohs_entered <- hs_read("co_hohs_entered.parquet")
+  co_clients_moved_in_leavers <- hs_read("co_clients_moved_in_leavers.parquet")
+  co_hohs_moved_in_leavers <- hs_read("co_hohs_moved_in_leavers.parquet")
+  co_adults_moved_in_leavers <- hs_read("co_adults_moved_in_leavers.parquet")
 
   # read scoring rubric from google sheets
   ensure_authenticated()

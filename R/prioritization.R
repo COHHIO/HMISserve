@@ -9,7 +9,6 @@
 #' @inheritParams data_quality_tables
 #' @export
 #'
-#' @include 03_prioritization_utils.R
 prioritization <- function(
     co_clients_served,
     Disabilities,
