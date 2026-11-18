@@ -18,7 +18,7 @@ vet_active <- function(
 ) {
   data_types <-HMISprep::data_types
 
-  Offers <- HMISdata::load_looker_data(filename = "Client_Offer", col_types = HMISdata::look_specs$Client_Offer)
+  Offers <- hs_read("Client_Offer", kind = "looker", col_types = HMISdata::look_specs$Client_Offer)
 
   # Get all veterans and associated hh members ------------------------------
   ServiceAreas <- HMISdata::ServiceAreas

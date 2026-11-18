@@ -1,4 +1,3 @@
-
 get_null_names <- function(fmls = rlang::fn_fmls(), e = rlang::caller_env()) {
   names(fmls)[purrr::imap_lgl(fmls, ~exists(.y, e, mode = "NULL"))]
 }
@@ -1661,7 +1660,7 @@ dq_duplicate_ees <- function(served_in_date_range, vars, guidance) {
 #' @export
 
 dq_future_entry_date <- function(rm_dates, vars, guidance) {
-  raw <- HMISdata::load_looker_data(filename = "Future_Entry", col_types = readr::cols(
+  raw <- hs_read("Future_Entry", kind = "looker", col_types = readr::cols(
     EntryDate = readr::col_date(),
     CreatedDate = readr::col_date(),
     UniqueID = readr::col_character(),
@@ -1695,7 +1694,7 @@ dq_future_entry_date <- function(rm_dates, vars, guidance) {
 #' @inherit data_quality_tables params return
 #' @export
 dq_future_exit_date <- function(served_in_date_range, vars, guidance) {
-  future_exits <- HMISdata::load_looker_data(filename = "Future_Exits", col_types = readr::cols(
+  future_exits <- hs_read("Future_Exits", kind = "looker", col_types = readr::cols(
     ExitDate = readr::col_date(),
     UniqueID = readr::col_character(),
     EnrollmentID = readr::col_character(),
@@ -1720,7 +1719,7 @@ dq_future_exit_date <- function(served_in_date_range, vars, guidance) {
 #' @export
 
 dq_future_move_in_date <- function(rm_dates, vars, guidance) {
-  raw <- HMISdata::load_looker_data(filename = "Future_MoveInDate", col_types = readr::cols(
+  raw <- hs_read("Future_MoveInDate", kind = "looker", col_types = readr::cols(
     MoveInDate = readr::col_date(),
     CreatedDate = readr::col_date(),
     EntryDate = readr::col_date(),
@@ -1760,7 +1759,7 @@ dq_future_move_in_date <- function(rm_dates, vars, guidance) {
 #' @export
 
 dq_future_assessment_date <- function(served_in_date_range, assessments, vars, guidance) {
-  future_assessments <- HMISdata::load_looker_data(filename = "Future_Assessments", col_types = readr::cols(
+  future_assessments <- hs_read("Future_Assessments", kind = "looker", col_types = readr::cols(
     AssessmentDate = readr::col_date(),
     UniqueID = readr::col_character(),
     EnrollmentID = readr::col_character(),
@@ -1786,7 +1785,7 @@ dq_future_assessment_date <- function(served_in_date_range, assessments, vars, g
 #' @export
 
 dq_future_harp_date <- function(served_in_date_range, assessments, vars, guidance) {
-  future_harps <- HMISdata::load_looker_data(filename = "Future_HARP", col_types = readr::cols(
+  future_harps <- hs_read("Future_HARP", kind = "looker", col_types = readr::cols(
     AssessmentDate = readr::col_date(),
     UniqueID = readr::col_character(),
     PersonalID = readr::col_character(),
@@ -1820,7 +1819,7 @@ dq_future_harp_date <- function(served_in_date_range, assessments, vars, guidanc
 #' @export
 
 dq_future_homeless_start_date <- function(served_in_date_range, assessments, vars, guidance) {
-  future_homeless_start_date <- HMISdata::load_looker_data(filename = "Future_ApproxHomelessDate", col_types = readr::cols(
+  future_homeless_start_date <- hs_read("Future_ApproxHomelessDate", kind = "looker", col_types = readr::cols(
     ApproximateDateHomeless = readr::col_date(),
     UniqueID = readr::col_character(),
     PersonalID = readr::col_character(),
@@ -3109,6 +3108,3 @@ read_roxygen <- function(file = file.path("R","04_DataQuality_utils.R"), tag = "
     as.character() |>
     unique()
 }
-
-
-

@@ -47,31 +47,9 @@ Remotes:
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-Collate: 
-    'aaa_imports.R'
-    'bed_unit_utilization.R'
-    'bed_unit_utilization_utils.R'
-    'relevant_dq.R'
-    'guidance.R'
-    'create_guidance.R'
-    'data.R'
-    'data_quality.R'
-    'data_quality_summary.R'
-    'data_quality_utils.R'
-    'prioritization.R'
-    'prioritization_utils.R'
-    'project_evaluation.R'
-    'project_evaluation_mahoning.R'
-    'project_evaluation_utils.R'
-    'qpr_client_counts.R'
-    'qpr_ees.R'
-    'qpr_harp.R'
-    'qpr_utils.R'
-    'spm.R'
-    'veteran_active_list.R'
-    'veterans.R'
 Config/roxygen2/version: 8.1.0
 Suggests: 
     testthat (>= 3.0.0),
+    withr,
     yaml
 Config/testthat/edition: 3

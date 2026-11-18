@@ -17,28 +17,28 @@ tryCatch({
 
   log_info("Downloading Data:")
   
-  Project = HMISdata::load_hmis_parquet("Project.parquet")
-  Client = HMISdata::load_hmis_parquet("Client.parquet")
-  Inventory = HMISdata::load_hmis_parquet("Inventory.parquet")
-  assessments = HMISdata::load_hmis_csv("Assessment.csv")
-  Enrollment_extra_Client_Exit_HH_CL_AaE = HMISdata::load_hmis_parquet("Enrollment_extra_Client_Exit_HH_CL_AaE.parquet")
-  Disabilities = HMISdata::load_hmis_parquet("Disabilities.parquet")
-  Referrals = HMISdata::load_hmis_parquet("Referrals.parquet")
-  Services_enroll_extras = HMISdata::load_hmis_parquet("Services_enroll_extras.parquet")
-  co_clients_served = HMISdata::load_hmis_parquet("co_clients_served.parquet")
-  IncomeBenefits = HMISdata::load_hmis_parquet("IncomeBenefits.parquet")
-  HealthAndDV = HMISdata::load_hmis_parquet("HealthAndDV.parquet")
-  VeteranCE = HMISdata::load_looker_data(filename = "Client", col_types = HMISdata::look_specs$Client)
-  tay = HMISdata::load_hmis_parquet("tay.parquet")
-  Contacts = HMISdata::load_hmis_parquet("Contacts.parquet")
-  Funder = HMISdata::load_hmis_parquet("Funder.parquet")
-  Referrals_full = HMISdata::load_hmis_parquet("Referrals_full.parquet")
-  Scores = HMISdata::load_hmis_parquet("Scores.parquet")
-  Scores_enrollments = HMISdata::load_hmis_parquet("Scores_enrollments.parquet")
-  Users = HMISdata::load_hmis_parquet("Users.parquet")
+  Project = HMISserve::hs_read("Project.parquet")
+  Client = HMISserve::hs_read("Client.parquet")
+  Inventory = HMISserve::hs_read("Inventory.parquet")
+  assessments = HMISserve::hs_read("Assessment.csv", kind = "hmis_csv")
+  Enrollment_extra_Client_Exit_HH_CL_AaE = HMISserve::hs_read("Enrollment_extra_Client_Exit_HH_CL_AaE.parquet")
+  Disabilities = HMISserve::hs_read("Disabilities.parquet")
+  Referrals = HMISserve::hs_read("Referrals.parquet")
+  Services_enroll_extras = HMISserve::hs_read("Services_enroll_extras.parquet")
+  co_clients_served = HMISserve::hs_read("co_clients_served.parquet")
+  IncomeBenefits = HMISserve::hs_read("IncomeBenefits.parquet")
+  HealthAndDV = HMISserve::hs_read("HealthAndDV.parquet")
+  VeteranCE = HMISserve::hs_read("Client", kind = "looker", col_types = HMISdata::look_specs$Client)
+  tay = HMISserve::hs_read("tay.parquet")
+  Contacts = HMISserve::hs_read("Contacts.parquet")
+  Funder = HMISserve::hs_read("Funder.parquet")
+  Referrals_full = HMISserve::hs_read("Referrals_full.parquet")
+  Scores = HMISserve::hs_read("Scores.parquet")
+  Scores_enrollments = HMISserve::hs_read("Scores_enrollments.parquet")
+  Users = HMISserve::hs_read("Users.parquet")
   living_situation = HMISprep::living_situations
   destinations = HMISprep::destinations
-  mahoning_projects = HMISdata::load_hmis_parquet("mahoning_projects.parquet")
+  mahoning_projects = HMISserve::hs_read("mahoning_projects.parquet")
   rm_dates = HMISprep::load_dates()
   guidance = HMISserve::get_guidance()
   data_types = HMISprep::data_types
@@ -135,7 +135,7 @@ bucket = "shiny-data-cohhio", folder = Sys.getenv("DATA_ENV", unset = "RME"))
   HMISserve::vet_active(co_clients_served = co_clients_served,
     Project = Project,
     VeteranCE = VeteranCE,
-    Contacts = HMISdata::load_hmis_parquet("Contacts.parquet"),
+    Contacts = Contacts,
     Enrollment_extra_Client_Exit_HH_CL_AaE = Enrollment_extra_Client_Exit_HH_CL_AaE)
 
   # Project Evaluation ####

@@ -8,7 +8,6 @@
 #'
 #' @return A data frame of data quality summary.
 #' @export
-#' @include 04_DataQuality.R 04_DataQuality_utils.R 04_DataQuality_summary_utils.R
 
 data_quality_summary <- function(co_clients_served, rm_dates, .deps) {
   dq_data <- data_quality(.deps = deps)
