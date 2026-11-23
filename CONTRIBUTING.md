@@ -58,11 +58,83 @@ Put this in the PR description.
    ```
 
 2. List each package whose version or SHA changed, and why.
-3. Output comparison: once the snapshot and comparison tools from #17 and the
-   `RME_test` run from #18 exist, run the pipeline on both images and attach
-   the result. Until then, say in the PR that outputs were not compared.
+3. Output comparison: once the snapshot and comparison tools from #17 exist,
+   run the pipeline on both images (see [Running an image into
+   `RME_test`](#running-an-image-into-rme_test)) and attach the result. Until
+   then, say in the PR that outputs were not compared.
 4. If the bump changes what RminorElevated shows, link the matching
    RminorElevated issue.
+
+## Running an image into `RME_test`
+
+Use this to try a PR's image against real inputs without touching production
+output. The run writes to `s3://shiny-data-cohhio/RME_test/` (every output goes
+through `DATA_ENV`), and `RME/` is not written. Runs are manual only. Nothing
+runs on a schedule.
+
+Each run overwrites what the last one left in `RME_test/`, and only one test
+run can be active at a time.
+
+### From GitHub Actions
+
+Actions > "Run pipeline into RME_test" > Run workflow, then fill in:
+
+- `image_tag`: the tag to run, such as `pr-42-<sha>`. A PR's Build and Push log
+  prints it, and you can also read it in ECR. `latest` runs the current master
+  image.
+- `input_prefix` (optional): sets `HMISSERVE_INPUT_PREFIX`, for example
+  `_snapshots/2026-11-11`, to read a frozen snapshot instead of live inputs.
+
+The job starts the task and exits without waiting. Its summary shows the task
+ID and the command to follow the logs. This needs the `ECS_SUBNETS` and
+`ECS_SECURITY_GROUP` repository variables (the subnet and security group the
+scheduled task uses).
+
+### From the command line
+
+This does the same thing by hand. It needs ECS permissions on the account.
+
+```
+REGION=us-east-2
+CLUSTER=hmis-processing-cluster
+IMAGE=647857229900.dkr.ecr.us-east-2.amazonaws.com/hmis-serve:pr-<n>-<sha>
+
+# Copy the production task definition into a test family with the PR image.
+# The scheduled task definition (hmis-serve) is not changed.
+aws ecs describe-task-definition --task-definition hmis-serve --region $REGION \
+  --query taskDefinition > td.json
+jq --arg img "$IMAGE" '
+  (.containerDefinitions[] | select(.name == "hmis-serve") | .image) = $img
+  | .family = "hmis-serve-test"
+  | del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+        .compatibilities, .registeredAt, .registeredBy)' td.json > td-test.json
+aws ecs register-task-definition --cli-input-json file://td-test.json --region $REGION
+
+# Run it with DATA_ENV set. Add HMISSERVE_INPUT_PREFIX to the list if needed.
+aws ecs run-task --region $REGION --cluster $CLUSTER --launch-type FARGATE \
+  --task-definition hmis-serve-test \
+  --network-configuration 'awsvpcConfiguration={subnets=[<subnet>],securityGroups=[<sg>],assignPublicIp=ENABLED}' \
+  --overrides '{"containerOverrides":[{"name":"hmis-serve","environment":[
+    {"name":"DATA_ENV","value":"RME_test"}]}]}'
+```
+
+### Logs
+
+Test runs log to the same group as production, `/ecs/hmis-serve`. The stream is
+`ecs/hmis-serve/<task-id>`, and `run-task` prints the task ARN, which ends in
+the ID:
+
+```
+aws logs tail /ecs/hmis-serve --region us-east-2 \
+  --log-stream-name-prefix ecs/hmis-serve/<task-id> --follow
+```
+
+### Viewing the result
+
+Run RminorElevated with the `dev` golem config (`GOLEM_CONFIG_ACTIVE=dev`).
+
+Known gap: RminorElevated reads guidance from a hard-coded `RME` folder, so
+guidance changes do not show up in the test environment yet.
 
 ## After merging
 

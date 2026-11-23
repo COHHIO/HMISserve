@@ -1,0 +1,129 @@
+name: Run pipeline into RME_test
+
+# Manual only, on purpose: there is no schedule trigger. The task runs with
+# DATA_ENV=RME_test, so nothing under RME/ is written. DATA_ENV is fixed here
+# and is not an input, so a run cannot be pointed at production by mistake.
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "ECR image tag to run, e.g. pr-42-<sha> (printed in the Build and Push log)"
+        required: true
+        type: string
+      input_prefix:
+        description: "Optional HMISSERVE_INPUT_PREFIX, e.g. _snapshots/2026-11-11 (blank = live inputs)"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: run-rme-test
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-2
+  ECR_REPOSITORY: hmis-serve
+  CLUSTER: hmis-processing-cluster
+  PROD_FAMILY: hmis-serve
+  TEST_FAMILY: hmis-serve-test
+  CONTAINER: hmis-serve
+  TEST_DATA_ENV: RME_test
+
+jobs:
+  run-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check inputs
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          INPUT_PREFIX: ${{ inputs.input_prefix }}
+          SUBNETS: ${{ vars.ECS_SUBNETS }}
+          SECURITY_GROUP: ${{ vars.ECS_SECURITY_GROUP }}
+        run: |
+          [[ "$IMAGE_TAG" =~ ^[A-Za-z0-9_.-]{1,128}$ ]] || { echo "::error::Invalid image tag"; exit 1; }
+          [[ "$INPUT_PREFIX" =~ ^[A-Za-z0-9_./-]*$ ]] || { echo "::error::Invalid input prefix"; exit 1; }
+          [ -n "$SUBNETS" ] && [ -n "$SECURITY_GROUP" ] || {
+            echo "::error::Set the ECS_SUBNETS and ECS_SECURITY_GROUP repository variables"; exit 1; }
+
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::647857229900:role/GitHubActionsRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Refuse to overlap another test run
+        run: |
+          running=$(aws ecs list-tasks --cluster "$CLUSTER" --family "$TEST_FAMILY" \
+            --desired-status RUNNING --query 'length(taskArns)')
+          if [ "$running" != "0" ]; then
+            echo "::error::A $TEST_FAMILY task is still running. Wait for it to finish."
+            exit 1
+          fi
+
+      - name: Register a test task definition with this image
+        id: register
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+          IMAGE="$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG"
+
+          # Copy the production definition into a separate family, so the
+          # scheduled task definition is never touched.
+          aws ecs describe-task-definition --task-definition "$PROD_FAMILY" \
+            --query taskDefinition > td.json
+          jq --arg img "$IMAGE" --arg family "$TEST_FAMILY" --arg c "$CONTAINER" '
+            (.containerDefinitions[] | select(.name == $c) | .image) = $img
+            | .family = $family
+            | del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                  .compatibilities, .registeredAt, .registeredBy)' td.json > td-test.json
+
+          # Fail if the container name did not match, which would run the prod image.
+          jq -e --arg img "$IMAGE" '[.containerDefinitions[].image] | index($img)' td-test.json > /dev/null \
+            || { echo "::error::No container named $CONTAINER in $PROD_FAMILY"; exit 1; }
+
+          ARN=$(aws ecs register-task-definition --cli-input-json file://td-test.json \
+            --query taskDefinition.taskDefinitionArn --output text)
+          echo "arn=$ARN" >> "$GITHUB_OUTPUT"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+      - name: Run the task
+        env:
+          TASK_DEF_ARN: ${{ steps.register.outputs.arn }}
+          IMAGE: ${{ steps.register.outputs.image }}
+          INPUT_PREFIX: ${{ inputs.input_prefix }}
+          SUBNETS: ${{ vars.ECS_SUBNETS }}
+          SECURITY_GROUP: ${{ vars.ECS_SECURITY_GROUP }}
+        run: |
+          OVERRIDES=$(jq -nc --arg c "$CONTAINER" --arg env "$TEST_DATA_ENV" --arg prefix "$INPUT_PREFIX" '
+            {containerOverrides: [{name: $c, environment:
+              ([{name: "DATA_ENV", value: $env}]
+               + (if $prefix != "" then [{name: "HMISSERVE_INPUT_PREFIX", value: $prefix}] else [] end))}]}')
+          NETWORK="awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SECURITY_GROUP],assignPublicIp=ENABLED}"
+
+          OUT=$(aws ecs run-task --cluster "$CLUSTER" --launch-type FARGATE --count 1 \
+            --task-definition "$TASK_DEF_ARN" --network-configuration "$NETWORK" \
+            --overrides "$OVERRIDES" --started-by "gha-$GITHUB_RUN_ID")
+
+          if [ "$(echo "$OUT" | jq '.failures | length')" != "0" ]; then
+            echo "::error::run-task failed"; echo "$OUT" | jq '.failures'; exit 1
+          fi
+          TASK_ID=$(echo "$OUT" | jq -r '.tasks[0].taskArn | split("/") | last')
+
+          {
+            echo "### Started task \`$TASK_ID\`"
+            echo
+            echo "- Image: \`$IMAGE\`"
+            echo "- Output folder: \`s3://shiny-data-cohhio/$TEST_DATA_ENV/\`"
+            echo "- Input prefix: \`${INPUT_PREFIX:-(live inputs)}\`"
+            echo
+            echo "This job does not wait for the pipeline. Follow it with:"
+            echo
+            echo '```'
+            echo "aws logs tail /ecs/hmis-serve --region $AWS_REGION --log-stream-name-prefix ecs/$CONTAINER/$TASK_ID --follow"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
