@@ -131,10 +131,24 @@ aws logs tail /ecs/hmis-serve --region us-east-2 \
 
 ### Viewing the result
 
-Run RminorElevated with the `dev` golem config (`GOLEM_CONFIG_ACTIVE=dev`).
+Run RminorElevated with the `dev` golem config (`GOLEM_CONFIG_ACTIVE=dev`, set
+before R starts, for example in `.Renviron`). That config sets `data_env:
+RME_test`. RminorElevated takes its data folder from the golem config and does
+not read the `DATA_ENV` environment variable.
 
-Known gap: RminorElevated reads guidance from a hard-coded `RME` folder, so
-guidance changes do not show up in the test environment yet.
+To confirm you are on test data, look for the red "DEVELOPMENT MODE — USING
+TEST DATA" banner. Do not use the "Data refreshed" time in the sidebar: it
+comes from the upstream `hud.csv-daily/HMIS/` export and is the same whichever
+folder the app reads.
+
+The app loads every `.rds` and `.parquet` file under `RME_test/`. A test run
+only writes what HMISserve produces, so anything the app expects from other
+jobs will be missing unless it was copied into `RME_test/` first.
+
+Known gap: RminorElevated reads some inputs from a hard-coded `RME` folder
+(guidance in `mod_body_dq_program_level.R`, `mahoning_goals.csv` in
+`mod_body_mpo.R`), so changes to those do not show up in the test environment
+yet.
 
 ## After merging
 
